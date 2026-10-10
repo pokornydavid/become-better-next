@@ -67,3 +67,11 @@ test('date navigation respects local days across month and DST changes', () => {
   assert.equal(addDays('2026-10-31', 1), '2026-11-01'); assert.equal(weekDates('2026-10-11')[0], '2026-10-05'); assert.equal(addDays('2026-10-25', 1), '2026-10-26');
 });
 test('sleep crosses midnight and rejects missing times', () => { assert.equal(sleepHours('23:00', '06:45'), 7.75); assert.equal(sleepHours('', '06:45'), 0); });
+test('restoring the local demo resets modified training status', () => {
+  const storage = memory(), r = new Repository(storage);
+  const workout = Object.values(r.getSnapshot().store.records).find(row => row.kind === 'workout' && row.payload.status === 'planned')!;
+  r.patch(workout.id, 'workout', { status: 'active' }); r.startEmpty(); r.restoreDemo();
+  const reopened = new Repository(storage);
+  assert.ok(Object.values(reopened.getSnapshot().store.records).some(row => row.kind === 'workout' && row.payload.status === 'planned'));
+  assert.ok(!Object.values(reopened.getSnapshot().store.records).some(row => row.payload.status === 'active'));
+});
