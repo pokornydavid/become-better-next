@@ -57,6 +57,17 @@ export class Repository {
     return id;
   }
   add(kind: Kind, payload: Record<string, Value>) { return this.patch(crypto.randomUUID(), kind, payload); }
+  addBatch(drafts: { id?: string; kind: Kind; payload: Record<string, Value> }[]) {
+    const store = this.snapshot.store, records = { ...store.records }, stamp = this.nextStamp();
+    const ids = drafts.map(draft => {
+      const id = draft.id || crypto.randomUUID();
+      if (records[id]) throw new Error('Záznam už existuje.');
+      records[id] = patchRecord(undefined, id, draft.kind, draft.payload, stamp);
+      return id;
+    });
+    this.persist({ ...store, records, pending: [...new Set([...store.pending, ...ids])] }); this.onDirty?.();
+    return ids;
+  }
   remove(ids: string[]) {
     const store = this.snapshot.store, records = { ...store.records }, stamp = this.nextStamp();
     for (const id of ids) if (records[id]) records[id] = { ...records[id], deleted: true, stamps: { ...records[id].stamps, _deleted: stamp } };

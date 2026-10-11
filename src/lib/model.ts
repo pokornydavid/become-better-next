@@ -1,11 +1,11 @@
 export type Value = string | number | boolean | null;
-export type Kind = 'workout' | 'exercise' | 'set' | 'daily' | 'goals' | 'measurement' | 'library' | 'photo';
+export type Kind = 'workout' | 'exercise' | 'set' | 'daily' | 'goals' | 'measurement' | 'library' | 'photo' | 'photoAlbum';
 export type DataRecord = {
   id: string; kind: Kind; payload: Record<string, Value>;
   stamps: Record<string, string>; deleted: boolean; revision: number;
 };
 export type Store = { version: 1; records: Record<string, DataRecord>; pending: string[]; demo: boolean };
-export const KINDS: Kind[] = ['workout', 'exercise', 'set', 'daily', 'goals', 'measurement', 'library', 'photo'];
+export const KINDS: Kind[] = ['workout', 'exercise', 'set', 'daily', 'goals', 'measurement', 'library', 'photo', 'photoAlbum'];
 export const emptyStore = (): Store => ({ version: 1, records: {}, pending: [], demo: false });
 export const dateKey = (date = new Date()) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 export function addDays(date: string, days: number) { const d = new Date(`${date}T12:00:00`); d.setDate(d.getDate() + days); return dateKey(d); }
