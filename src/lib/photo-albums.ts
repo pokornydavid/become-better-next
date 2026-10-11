@@ -1,8 +1,9 @@
 import type { DataRecord, Store } from './model.ts';
 import { num, recordsOf, text, weekDates } from './model.ts';
-export type Album = { id: string; name: string; date: string; photos: DataRecord[]; virtual: boolean };
+export type Album = { id: string; name: string; date: string; photos: DataRecord[]; virtual: boolean; phaseId?: string; week?: number };
+export const photoCount = (count: number) => `${count} ${count === 1 ? 'fotka' : count > 1 && count < 5 ? 'fotky' : 'fotek'}`;
 export function photoAlbums(store: Store): Album[] {
-  const albums = new Map(recordsOf(store, 'photoAlbum').map(r => [r.id, { id: r.id, name: text(r.payload.name), date: text(r.payload.date), photos: [] as DataRecord[], virtual: false }]));
+  const albums = new Map<string, Album>(recordsOf(store, 'photoAlbum').map(r => [r.id, { id: r.id, name: text(r.payload.name), date: text(r.payload.date), phaseId: text(r.payload.phaseId), week: num(r.payload.week), photos: [] as DataRecord[], virtual: false }]));
   for (const photo of recordsOf(store, 'photo')) {
     let id = text(photo.payload.albumId);
     if (!albums.has(id)) {

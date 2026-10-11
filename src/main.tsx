@@ -6,6 +6,7 @@ import '@fontsource/barlow-condensed/700.css';
 import './styles.css';
 import './refinements.css';
 import './features.css';
+import './planning.css';
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { error: string }> {
   state = { error: '' };

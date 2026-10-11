@@ -27,19 +27,20 @@ npm run preview
 - Day/week navigation, personal workouts, sets, weight, reps, completion and rest timer. RPE is optional and hidden initially.
 - Write an exercise name directly in the workout, rename it in place, reuse past names and track maxima for personal names. Templates and the exercise library are optional.
 - Copy a workout to next week.
-- Daily calories/macros/water and weekly overview; configurable personal goals.
+- Daily calories/macros/water, visible daily targets and an independent weekly calorie budget. The remaining budget is distributed across all unlogged days, including gaps in earlier days; recorded zero counts as a logged day.
 - Sleep times/score, stress, caffeine, night awakenings, reading, steps and morning habits.
 - Bodyweight/waist history, charts, personal maxima and training volume.
 - Named weekly photo folders, batch upload (up to 30 photos, 10 MB each), ordering, captions and moving photos between folders. Folder images load as they become visible.
+- Diet/bulk/maintenance/custom progress phases with a start date, 1–52 weeks, written goal and optional target weight. All weekly folders are created atomically; phase length/date edits preserve photo identities and refuse to discard populated later weeks. Past phases and independent folders remain accessible.
 - Compare the same photo positions across weeks; zoom, drag, rotation, brightness, contrast, overlay, saved non-destructive edits and side-by-side PNG export. Original files are retained.
-- Trainer teams with multiple coaches, accepted client invitations, shared client logs, staff-only notes, text plans and a client/team chat. The local demonstration is explicitly labeled and never sends real messages.
+- Trainer teams with multiple coaches, accepted client invitations, shared client logs, staff-only notes, text instructions and a client/team chat. A separate client consent permits trainers to change allowlisted goals and add structured workouts with personal exercise names and planned sets to the client's diary. Goal writes enforce revision checks; completed logs remain owner-written. The local demonstration is explicitly labeled and never sends real messages.
 - Record backup import/export. **Photo files are not included in the JSON record backup yet.** Retain original photos until full media backup is implemented.
 - Supabase email-link authentication and account-scoped offline queue; per-field merge, optimistic revision checks and deletion tombstones.
 
 ## Separate Supabase setup
 
 1. Create a **new** development project, preferably an EU region. Leave the current live project alone.
-2. Apply both SQL migrations in filename order to the **new project**: `202610100001_initial.sql`, then `202610110001_coaching_and_albums.sql`. Local tests execute these migrations on PostgreSQL via PGlite, including accepted invitation, chat isolation, photo-consent and revocation checks.
+2. Apply all three SQL migrations in filename order to the **new project**: `202610100001_initial.sql`, `202610110001_coaching_and_albums.sql`, then `202610110002_planning_and_phases.sql`. Local tests execute them on PostgreSQL via PGlite, including accepted invitations, chat isolation, photo/management consent, trainer goal CAS, atomic workout creation and revocation checks.
 3. Copy `.env.example` to `.env`; fill the **new** project's URL and public publishable key. Never put service-role keys, management tokens or DB passwords in the frontend.
 4. Set Auth Site URL/allowed redirects to the actual development preview URL and localhost. Configure email delivery before public testing.
 5. Restart Vite. Log in with the same account on PC and mobile **in this new app**. Demo data does not automatically enter real accounts.

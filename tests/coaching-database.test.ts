@@ -13,7 +13,7 @@ test('coaching enforces accepted email invites, team isolation, private notes, p
       create table storage.objects(id uuid default gen_random_uuid(),bucket_id text,name text);
       alter table storage.objects enable row level security; grant select,insert,delete on storage.objects to authenticated;
       create function storage.foldername(text) returns text[] language sql immutable as 'select string_to_array($1,''/'')';`);
-    for(const file of ['202610100001_initial.sql','202610110001_coaching_and_albums.sql']) await db.exec(await readFile(new URL('../supabase/migrations/'+file,import.meta.url),'utf8'));
+    for(const file of ['202610100001_initial.sql','202610110001_coaching_and_albums.sql','202610110002_planning_and_phases.sql']) await db.exec(await readFile(new URL('../supabase/migrations/'+file,import.meta.url),'utf8'));
     const owner='00000000-0000-4000-8000-000000000001',client='00000000-0000-4000-8000-000000000002',other='00000000-0000-4000-8000-000000000003',colleague='00000000-0000-4000-8000-000000000004',outsider='00000000-0000-4000-8000-000000000005';
     for(const [id,email] of [[owner,'owner@test.cz'],[client,'client@test.cz'],[other,'other@test.cz'],[colleague,'colleague@test.cz'],[outsider,'outsider@test.cz']]) await db.query('insert into auth.users values($1,$2)',[id,email]);
     await db.exec('set role authenticated');

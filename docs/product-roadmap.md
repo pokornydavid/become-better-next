@@ -6,7 +6,7 @@ Become Better combines training, nutrition, recovery and measurable progress. Vi
 
 Separate private repository; React/TypeScript; monochrome responsive UI; working personal logs and photos; prepared independent Supabase schema and synchronization; record/account/security regression tests.
 
-Personal exercise naming is the default workflow, with optional RPE and library/templates. Weekly photo folders support batch upload, ordered positions, comparison editing and PNG export. Coaching now includes teams, clients, staff notes, text plans, chat and consent-based SQL permissions. Online use is still pending a new hosted Supabase connection.
+Personal exercise naming is the default workflow, with optional RPE and library/templates. Visible weekly calorie budgets show saved targets and distribute remaining intake. Diet/bulk phases create dated photo folders and preserve photos when their dates or length change. Photo folders support comparison editing and PNG export. Coaching includes teams, clients, staff notes, text instructions, chat, consented goal editing and structured workout assignment with SQL permissions. Online use is still pending a new hosted Supabase connection.
 
 ## Next milestone — private beta
 
@@ -15,7 +15,7 @@ Personal exercise naming is the default workflow, with optional RPE and library/
 - Complete onboarding for goals, units, experience level and schedule.
 - Expand training planning: saved user templates, exercise reordering, warm-up/drop sets, cardio and timed exercises.
 - Add folder date editing, optimized cloud thumbnails, full media backups, undo, reliable deletion/purge and account-data export/removal.
-- Finish hosted coaching verification, chat notifications/history paging, structured workout-plan assignment, invitation delivery/cancellation and full collaboration exports.
+- Finish hosted coaching verification, editing/removing assigned plans, chat notifications/history paging, invitation delivery/cancellation and full collaboration exports.
 - Add explicit workout completion validation, history editing and accessible larger-text settings.
 - Build optional legacy-backup migration with a preview before importing.
 - Split initial screen modules, add browser end-to-end tests and error monitoring.

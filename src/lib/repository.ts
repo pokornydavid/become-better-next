@@ -68,6 +68,17 @@ export class Repository {
     this.persist({ ...store, records, pending: [...new Set([...store.pending, ...ids])] }); this.onDirty?.();
     return ids;
   }
+  updateBatch(drafts: { id?: string; kind: Kind; payload: Record<string, Value> }[], removed: string[] = []) {
+    const store = this.snapshot.store, records = { ...store.records }, stamp = this.nextStamp();
+    const changed = drafts.map(draft => {
+      const id = draft.id || crypto.randomUUID(), previous = records[id];
+      if (previous && (previous.kind !== draft.kind || previous.deleted)) throw new Error('Záznam nelze upravit.');
+      records[id] = patchRecord(previous, id, draft.kind, draft.payload, stamp);
+      return id;
+    });
+    for (const id of removed) if (records[id]) { records[id] = { ...records[id], deleted: true, stamps: { ...records[id].stamps, _deleted: stamp } }; changed.push(id); }
+    this.persist({ ...store, records, pending: [...new Set([...store.pending, ...changed])] }); this.onDirty?.();
+  }
   remove(ids: string[]) {
     const store = this.snapshot.store, records = { ...store.records }, stamp = this.nextStamp();
     for (const id of ids) if (records[id]) records[id] = { ...records[id], deleted: true, stamps: { ...records[id].stamps, _deleted: stamp } };
