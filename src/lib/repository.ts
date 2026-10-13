@@ -3,7 +3,7 @@ import { emptyStore, equivalent, mergeRecord, patchRecord, recordStamp, validate
 import type { DataRecord, Kind, Store, Value } from './model.ts';
 
 export type SyncState = 'local' | 'offline' | 'syncing' | 'synced' | 'error';
-export type Snapshot = { store: Store; user: { id: string; email: string } | null; status: SyncState; error: string; lastSync: string; configured: boolean };
+export type Snapshot = { store: Store; user: { id: string; email: string; displayName?: string } | null; status: SyncState; error: string; lastSync: string; configured: boolean };
 export const STORAGE_PREFIX = 'become-better-next:v1:';
 export class Repository {
   private key = `${STORAGE_PREFIX}demo`;
@@ -37,7 +37,7 @@ export class Repository {
   setStatus(status: SyncState, error = '', lastSync = this.snapshot.lastSync) { this.snapshot = { ...this.snapshot, status, error, lastSync }; this.emit(); }
   activate(user: Snapshot['user']) {
     const key = `${STORAGE_PREFIX}${user ? `user:${user.id}` : 'demo'}`;
-    if (this.key === key && this.snapshot.user?.email === user?.email) return;
+    if (this.key === key && this.snapshot.user?.email === user?.email && this.snapshot.user?.displayName === user?.displayName) return;
     const store = this.read(key, user ? emptyStore() : createDemo());
     this.key = key;
     this.snapshot = { ...this.snapshot, user, store, status: user ? 'syncing' : 'local', error: '', lastSync: '' }; this.emit();

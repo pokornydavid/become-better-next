@@ -28,3 +28,12 @@ export async function readPhoto(scope: string, id: string) {
     request.onerror = () => reject(new Error('Fotku se nepodařilo načíst.'));
   });
 }
+export async function replacePhotos(scope: string, photos: { id: string; file?: Blob }[]) {
+  for (const photo of photos) if (photo.file && (!['image/jpeg','image/png','image/webp'].includes(photo.file.type) || photo.file.size>10*1024*1024)) throw new Error('Fotka nemá podporovaný formát nebo je větší než 10 MB.');
+  const database = await db();
+  await new Promise<void>((resolve,reject) => {
+    const transaction=database.transaction('files','readwrite'),files=transaction.objectStore('files');
+    for(const photo of photos) if(photo.file) files.put(photo.file,`${scope}:${photo.id}`); else files.delete(`${scope}:${photo.id}`);
+    transaction.oncomplete=()=>resolve();transaction.onerror=()=>reject(new Error('Fotky se nepodařilo uložit.'));transaction.onabort=()=>reject(new Error('Pro uložení fotek není dost místa.'));
+  });
+}

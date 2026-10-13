@@ -7,6 +7,7 @@ import './styles.css';
 import './refinements.css';
 import './features.css';
 import './planning.css';
+import './theme.css';
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { error: string }> {
   state = { error: '' };
@@ -17,4 +18,13 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { err
   }
 }
 const root = ReactDOM.createRoot(document.getElementById('root')!);
+if (!import.meta.env.DEV && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    void navigator.serviceWorker.register(new URL('sw.js', window.location.href), { updateViaCache: 'none' }).then(registration => {
+      const update = () => { if (registration.waiting && navigator.serviceWorker.controller) window.dispatchEvent(new CustomEvent('bb-update-ready',{detail:registration})); };
+      update(); registration.addEventListener('updatefound',() => { registration.installing?.addEventListener('statechange',update); });
+      void navigator.serviceWorker.ready.then(() => window.dispatchEvent(new Event('bb-offline-ready')));
+    }).catch(() => { /* Online use remains available when caching is unavailable. */ });
+  },{once:true});
+}
 void import('./App').then(({ App }) => root.render(<ErrorBoundary><App /></ErrorBoundary>)).catch((error: Error) => root.render(<main className="fatal"><h1>Aplikaci se nepodařilo načíst.</h1><p>{error.message}</p><p>Uložená data jsme neměnili. Obnov stránku nebo si vyžádej pomoc.</p></main>));

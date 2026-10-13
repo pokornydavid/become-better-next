@@ -3,6 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { DataRecord } from './model.ts';
 import { Repository } from './repository.ts';
 import { readPhoto } from './photos';
+import { createAuthSignal } from './auth';
 
 const url = import.meta.env.VITE_SUPABASE_URL || '';
 const publicKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
@@ -11,6 +12,7 @@ const publicKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
 const forbiddenProductionRef = 'csjhpmqagaltnaicgryp';
 if (url.includes(forbiddenProductionRef)) throw new Error('Nová aplikace nesmí používat databázi stávající produkce.');
 export const cloudConfigured = Boolean(url && publicKey);
+export const authSignal = createAuthSignal(!cloudConfigured);
 export const repository = new Repository(localStorage, cloudConfigured);
 export const supabase: SupabaseClient | null = cloudConfigured ? createClient(url, publicKey, {
   auth: { storageKey: 'become-better-next:auth', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
@@ -83,19 +85,19 @@ export function syncNow() {
   if (!inFlight) inFlight = runSync().finally(() => { inFlight = null; });
   return inFlight;
 }
-function activate(session: { user: { id: string; email?: string } } | null) {
-  repository.activate(session ? { id: session.user.id, email: session.user.email || '' } : null);
+function activate(session: { user: { id: string; email?: string; user_metadata?: Record<string, unknown> } } | null) {
+  repository.activate(session ? { id: session.user.id, email: session.user.email || '', displayName: typeof session.user.user_metadata?.display_name === 'string' ? session.user.user_metadata.display_name.slice(0,80) : '' } : null);
   // Account changes may happen during an old request. Queue a fresh account's
   // sync after that request has settled, rather than sharing its result.
   if (inFlight) void inFlight.finally(schedule); else schedule();
 }
 if (supabase) {
   // Keep auth callbacks synchronous: Supabase holds its auth lock here.
-  supabase.auth.onAuthStateChange((_event, session) => { window.setTimeout(() => activate(session), 0); });
+  supabase.auth.onAuthStateChange((event, session) => { window.setTimeout(() => { if (event === 'PASSWORD_RECOVERY') authSignal.set({ recovery: true }); activate(session); }, 0); });
   void supabase.auth.getSession().then(({ data, error }) => {
     if (error) repository.setStatus('error', error.message);
     else activate(data.session);
-  });
+  }).catch(() => repository.setStatus('error','Účet se nepodařilo načíst. Zkontroluj připojení.')).finally(() => authSignal.set({ ready: true }));
   window.setInterval(() => { if (document.visibilityState === 'visible') void syncNow(); }, 15000);
 }
 window.addEventListener('online', schedule);

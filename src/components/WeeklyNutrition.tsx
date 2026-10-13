@@ -4,7 +4,7 @@ import { displayDate } from '../lib/model';
 import { nutritionGoals, weeklyNutrition } from '../lib/nutrition';
 const format = (n: number) => n.toLocaleString('cs-CZ', { maximumFractionDigits: 0 });
 export function WeeklyNutrition({ store, date, select, settings }: { store: Store; date: string; select?: (date: string) => void; settings?: () => void }) {
-  const week = weeklyNutrition(store, date), goals = nutritionGoals(store);
+  const week = weeklyNutrition(store, date), goals = nutritionGoals(store, date);
   return <section className="card weekly-budget">
     <div className="section-head"><div><span className="eyebrow">TVŮJ PLÁN VÝŽIVY</span><h3>Týdenní rozpočet</h3></div>{settings && <button className="text-button" onClick={settings}>Upravit limity <ArrowUpRight size={16}/></button>}</div>
     <p className="budget-range"><CalendarDays size={15}/>{displayDate(week.days[0].date)} – {displayDate(week.days[6].date)}</p>

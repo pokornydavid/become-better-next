@@ -14,6 +14,7 @@ export const displayDate = (date: string, options: Intl.DateTimeFormatOptions = 
 export const num = (value: Value | undefined) => Number(value) || 0;
 export const text = (value: Value | undefined) => typeof value === 'string' ? value : '';
 export const recordsOf = (store: Store, kind: Kind) => Object.values(store.records).filter(r => r.kind === kind && !r.deleted);
+export const isCardio = (exercise: DataRecord) => exercise.payload.muscle === 'Kardio' || exercise.payload.type === 'cardio';
 export const recordStamp = (r: DataRecord) => Object.values(r.stamps).sort().at(-1) || '';
 export function patchRecord(previous: DataRecord | undefined, id: string, kind: Kind, patch: Record<string, Value>, stamp: string): DataRecord {
   const stamps = { ...previous?.stamps };
@@ -62,7 +63,7 @@ export function sleepHours(bedTime: string, wakeTime: string) {
   return ((minutes(wakeTime) - minutes(bedTime) + 1440) % 1440) / 60;
 }
 export function volume(store: Store, workoutId?: string) {
-  const exercises = recordsOf(store, 'exercise').filter(e => !workoutId || e.payload.workoutId === workoutId);
+  const exercises = recordsOf(store, 'exercise').filter(e => !isCardio(e) && (!workoutId || e.payload.workoutId === workoutId));
   const ids = new Set(exercises.map(e => e.id));
   return recordsOf(store, 'set').filter(s => ids.has(text(s.payload.exerciseId)) && s.payload.done).reduce((v, s) => v + num(s.payload.weight) * num(s.payload.reps), 0);
 }

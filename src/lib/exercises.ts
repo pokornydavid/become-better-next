@@ -22,7 +22,7 @@ export function personalBests(store: Store) {
   const bests = new Map<string, { name: string; weight: number }>();
   for (const set of recordsOf(store, 'set')) {
     const exercise = byId.get(text(set.payload.exerciseId));
-    if (!exercise || !set.payload.done || num(set.payload.weight) <= 0) continue;
+    if (!exercise || exercise.payload.muscle === 'Kardio' || exercise.payload.type === 'cardio' || !set.payload.done || num(set.payload.weight) <= 0) continue;
     const name = text(exercise.payload.name), key = exerciseNameKey(name), weight = num(set.payload.weight);
     if (!bests.has(key) || bests.get(key)!.weight < weight) bests.set(key, { name, weight });
   }
