@@ -61,7 +61,9 @@ See [docs/coaching.md](docs/coaching.md) for trainer/client access and the invit
 
 Use `VITE_BASE_PATH=/become-better-next/` for a subpath deployment. A private repository does not automatically provide a public GitHub Pages website; choose an independent development host before enabling mobile access.
 
-The source repository is `https://github.com/pokornydavid/become-better-next`. The prepared Pages workflow is deliberately opt-in: enable Pages for this repository, then set repository variables `DEPLOY_GITHUB_PAGES=true`, `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` for the **new** project. It tests and builds before deploying, and rejects the old production project. If the GitHub plan does not allow Pages for this private repository, keep the source private and use a separate host, or have the owner explicitly approve making the source public. Do not change visibility automatically.
+The source repository is `https://github.com/pokornydavid/become-better-next`, now public at the owner's request to use the same GitHub Pages setup as the old app. A transfer to the owner's `dpokornydev` account has been requested and still needs acceptance. Its current Pages address is `https://pokornydavid.github.io/become-better-next/`; update links and Auth redirects after any accepted ownership transfer.
+
+The Pages workflow is opt-in through `DEPLOY_GITHUB_PAGES=true`. Set repository variables `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` together for the **new** project to activate account actions. Without both cloud variables it publishes only the explicitly labeled demo; it does not enable login or device sync. It tests and builds before deploying, rejects the old production project and refuses secret/service-role keys. Making the source public does not put runtime records, photos or ignored environment files in the repository.
 
 ## Before a commercial release
 

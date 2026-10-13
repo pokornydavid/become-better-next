@@ -24,4 +24,4 @@ Legacy conversion reads only a user-selected JSON file. It does not log into, qu
 
 At this revision no hosted Supabase project or cross-device integration has been verified. Local unit/PostgreSQL tests and visual QA do not substitute for those checks.
 
-The private GitHub source repository exists. The current GitHub account rejected Pages for that private repository (HTTP 422). The owner must choose an eligible Pages setup or a separate HTTPS host; the prepared Pages workflow stays disabled until its explicit repository flag and new cloud variables are present.
+The GitHub source repository is public at the owner's request to use GitHub Pages like the old application. Pages and its opt-in deployment flag are enabled on the independent new repository. A transfer from `pokornydavid` to `dpokornydev` was requested and needs acceptance on the destination account. Until the new cloud variables are configured, the deployed app remains a clearly labeled demo with inactive account forms and no cross-device sync. The separate Sites fallback is unpublished.

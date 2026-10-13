@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   build:
-    if: vars.DEPLOY_GITHUB_PAGES == 'true' && vars.VITE_SUPABASE_URL != '' && vars.VITE_SUPABASE_PUBLISHABLE_KEY != ''
+    if: vars.DEPLOY_GITHUB_PAGES == 'true'
     runs-on: ubuntu-latest
     env:
       VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
@@ -24,7 +24,22 @@ jobs:
           cache: npm
       - name: Check independent cloud configuration
         run: |
-          node --input-type=module -e "const url=new URL(process.env.VITE_SUPABASE_URL);if(url.protocol!=='https:'||url.hostname.includes('csjhpmqagaltnaicgryp'))throw new Error('Use only the new independent Supabase project');if(!process.env.VITE_SUPABASE_PUBLISHABLE_KEY.trim())throw new Error('Missing new public key');"
+          node --input-type=module <<'JS'
+          const url = process.env.VITE_SUPABASE_URL?.trim();
+          const key = process.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();
+          if (!url && !key) {
+            console.log('Publishing the clearly labeled demo; sign-in and cloud sync remain unavailable.');
+          } else {
+            if (!url || !key) throw new Error('Set both new cloud variables together');
+            const parsed = new URL(url);
+            if (parsed.protocol !== 'https:' || parsed.hostname.includes('csjhpmqagaltnaicgryp')) throw new Error('Use only the new independent Supabase project');
+            if (key.startsWith('sb_secret_')) throw new Error('Secret keys must never enter the frontend');
+            if (!key.startsWith('sb_publishable_')) {
+              const payload = JSON.parse(Buffer.from(key.split('.')[1] || '', 'base64url').toString());
+              if (payload.role !== 'anon') throw new Error('Use a public publishable or anon key only');
+            }
+          }
+          JS
       - run: npm ci
       - run: npm test
       - run: npm run build
