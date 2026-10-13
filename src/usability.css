@@ -1,0 +1,191 @@
+/* Clear surfaces, readable labels and a short path to daily actions. */
+html[data-theme="dark"] {
+  --paper: #121212;
+  --ink: #fafafa;
+  --surface: #242424;
+  --white: #242424;
+  --raised: #333333;
+  --field: #303030;
+  --muted: #c7c7c7;
+  --line: #565656;
+}
+html[data-theme="dark"] :is(.sidebar,.topbar) { background: #191919; }
+html[data-theme="dark"] :is(.card,.metric-card,.weekly-card,.library-card,.week-strip,.dialog,.client-stats>div) {
+  background: var(--surface);
+  border-color: var(--line);
+}
+html[data-theme="dark"] :is(.workout-hero,.calorie-card,.coach-intro,.phase-summary,.progress-summary) {
+  background: #292929;
+  border-color: #676767;
+}
+html[data-theme="dark"] :is(.client-row,.editor-tools,.editor-frame,.album-photo,.chart-empty) {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line);
+}
+html[data-theme="dark"] :is(.client-row strong,.client-avatar,.shared-exercise strong,.assigned-plan strong) { color: var(--ink); }
+html[data-theme="dark"] .client-row small { color: var(--muted); }
+html[data-theme="dark"] .client-row.selected { background: #393939; border-left: 4px solid #fafafa; padding-left: 14px; }
+html[data-theme="dark"] .client-row:hover { background: #343434; }
+html[data-theme="dark"] :is(.editor-tools summary,.range-field>span,.photo-caption>span,.photo-remove,.chart-empty,.template-index,.name-suggestions small,.training-hint,.input-unit>span,.calorie-foot,.phase-facts,.phase-type,.phase-status,.album-import-note,.compare-dialog .dialog-head p,.device-settings>small,.account-sync small,.profile-coach-link p,.tracking-settings .section-head p) { color: var(--muted); }
+html[data-theme="dark"] .compare-stage>div.editing { border-color: #fafafa; }
+html[data-theme="dark"] :is(input:not([type="checkbox"]):not([type="range"]),select,textarea,.password-field,.input-unit,.search-field) {
+  background: var(--field);
+  border-color: #818181;
+  color: var(--ink);
+}
+html[data-theme="dark"] :is(input,textarea)::placeholder { color: #c1c1c1; }
+html[data-theme="dark"] :is(.input-unit input,.password-field input) { border: 0; background: transparent; }
+html[data-theme="dark"] :is(.exercise-name,.session-title) { background: transparent; border-color: transparent; }
+html[data-theme="dark"] .exercise-name:hover { background: var(--raised); border-color: #818181; }
+html[data-theme="dark"] .button.secondary { background: #363636; border-color: #8b8b8b; color: #fafafa; }
+html[data-theme="dark"] .nav-item.active { background: #373737; border-left: 3px solid #fff; padding-left: 13px; }
+html[data-theme="dark"] :is(.text-button,.icon-button,.add-set,.add-exercise,.day-tab,.mobile-nav button) { color: #dedede; }
+html[data-theme="dark"] .set-check { background: #363636; color: #dfdfdf; border-color: #858585; }
+html[data-theme="dark"] .set-check.checked { background: #fafafa; color: #151515; border-color: #fafafa; }
+html[data-theme="dark"] .set-row.done input { background: #3b3b3b; border-color: #818181; }
+html[data-theme="dark"] :is(.mini-track,.weekly-bars span,.progress-track) { background: #5c5c5c; }
+html[data-theme="dark"] :is(.mini-track span,.weekly-bars span.filled,.progress-track span) { background: #fafafa; }
+html[data-theme="dark"] .client-tabs button[aria-selected="true"] { background: #333; border-radius: 5px 5px 0 0; }
+html[data-theme="dark"] .chat-messages { background: #1d1d1d; }
+html[data-theme="dark"] .chat-message p { background: #383838; border-color: #666; }
+html[data-theme="dark"] .chat-message.mine p { background: #fafafa; color: #151515; border-color: #fafafa; }
+html[data-theme="dark"] .budget-days button { background: #303030; border-color: #727272; }
+html[data-theme="dark"] .budget-days button.logged { background: #3a3a3a; }
+html[data-theme="dark"] .budget-days button.selected { background: #fafafa; color: #151515; border-color: #fafafa; }
+html[data-theme="dark"] .budget-days button.selected strong { color: #151515; }
+html[data-theme="dark"] .budget-days button:not(.selected) small { color: var(--muted); }
+html[data-theme="dark"] :is(.budget-settings,.client-list>.section-head,.client-row,.editor-tools details,.album-photo,.photo-comparison,.exercise-picker button) { border-color: var(--line); }
+html[data-theme="dark"] .mobile-nav { background: #202020f5; border-color: #818181; }
+html[data-theme="dark"] .mobile-nav button.active { background: #fafafa; border-radius: 7px; color: #151515; }
+html[data-theme="dark"] .header-signin { background: #fafafa; border-color: #fafafa; color: #151515; }
+html[data-theme="dark"] .auth-form { background: var(--surface); }
+html[data-theme="dark"] .auth-status { background: #333; border-color: #777; }
+html[data-theme="dark"] :is(.day-tab.selected,.segmented>button.selected,.filter-tabs button.selected) { color: #151515; }
+html[data-theme="dark"] .day-tab.selected :is(strong,span) { color: #151515; }
+html[data-theme="dark"] .day-tab:not(.selected) strong { color: #fafafa; }
+html[data-theme="dark"] .day-tab:hover:not(.selected) { background: #3b3b3b; }
+.day-tab { font-size: 11px; }
+.day-tab strong { font-size: 16px; }
+
+.page-help { font-size: 14px; line-height: 1.7; color: var(--muted); margin-top: 10px; max-width: 670px; }
+.page-heading { align-items: flex-start; }
+.eyebrow { letter-spacing: 1.3px; font-size: 11px; }
+.button,.hero-cta,.text-button,.header-signin { font-size: 14px; }
+.button,.hero-cta,.header-signin { min-height: 44px; }
+.nav-item { font-size: 14px; min-height: 48px; }
+.field,.notes-label,.training-hint,.checkbox-field,.photo-intro,.dialog-description { font-size: 13px; line-height: 1.7; }
+.field>input,.field>select,.input-unit input { min-height: 46px; font-size: 16px; }
+.metric-heading { font-size: 13px; }
+.metric-bottom { font-size: 12px; }
+.section-head h3 { font-size: 17px; }
+.subtle,.auto-save,.demo-notice,.demo-notice button { font-size: 12px; line-height: 1.7; }
+.demo-notice { padding: 12px 15px; background: var(--raised,#eaeaea); border: 1px solid var(--line); border-radius: 6px; }
+.demo-tag { font-size: 10px; }
+.overview-top { grid-template-columns: minmax(0,1fr) 265px; }
+.workout-hero { min-height: 235px; padding: 25px; display: flex; flex-direction: column; }
+.hero-top .pill { font-size: 12px; background: transparent; padding: 0; letter-spacing: 1px; }
+.hero-body { max-width: 100%; padding: 22px 0 0; }
+.hero-body h2 { font-family: 'Manrope Variable',sans-serif; font-size: 32px; font-weight: 800; letter-spacing: -1px; line-height: 1.25; max-width: none; text-transform: none; }
+.hero-meta { font-size: 13px; color: #ddd; margin-top: 15px; flex-wrap: wrap; }
+.hero-cta { margin-top: 23px; width: fit-content; }
+.hero-summary { font-size: 14px; line-height: 1.7; color: #d5d5d5; margin-top: 12px; }
+.weekly-card { padding: 25px; }
+.weekly-number { font-size: 70px; margin: 14px 0 10px; }
+.weekly-card h3 { font-size: 16px; }
+.weekly-card p { font-size: 13px; line-height: 1.8; }
+.weekly-bars { margin: 18px 0; }
+.weekly-bottom { display: none; }
+.overview-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 24px; }
+.overview-actions .button { flex: 1; min-width: 190px; justify-content: center; }
+.recent-row strong { font-size: 14px; }
+.recent-row small,.habit-row small { font-size: 12px; }
+.client-row { min-height: 82px; }
+.client-row strong { font-size: 14px; }
+.client-row small { font-size: 12px; }
+.client-tabs { gap: 10px; }
+.client-tabs button { min-height: 44px; padding: 10px 13px; font-size: 14px; }
+.client-stats small,.client-records summary small,.coach-demo,.coach-demo strong,.coach-team>summary { font-size: 12px; }
+.client-records summary,.shared-exercise,.client-detail-grid,.chat-message p { font-size: 13px; }
+.coach-bar .button,.coach-bar select,.coach-planning .button { font-size: 13px; }
+.coach-intro h2 { font-family: 'Manrope Variable',sans-serif; font-size: 28px; font-weight: 800; }
+.set-heading { font-size: 11px; }
+.set-row input { min-height: 46px; font-size: 18px; }
+.set-check { width: 44px; height: 44px; }
+.simple-sets .set-row { grid-template-columns: 60px minmax(75px,1fr) minmax(75px,1fr) 70px 35px; }
+.simple-sets.with-rpe .set-row { grid-template-columns: 55px minmax(65px,1fr) minmax(65px,1fr) minmax(55px,.7fr) 70px 35px; }
+.add-set,.add-exercise { font-size: 14px; min-height: 44px; }
+.budget-stats small,.budget-settings,.budget-range,.budget-explanation { font-size: 13px; line-height: 1.8; }
+.budget-days button { min-height: 96px; }
+.budget-days button small { font-size: 11px; }
+.nutrition-top { margin-top: 0; }
+.calorie-numbers strong { font-size: 58px; }
+.nutrition-macros { margin-bottom: 22px; }
+.nutrition-macros>summary { font-size: 14px; padding: 16px 0; cursor: pointer; }
+.auth-dialog[open] { display: block; width: 490px; }
+.auth-form { padding: 32px; }
+.auth-form h2 { font-size: 28px; }
+.auth-form>p,.auth-status strong,.auth-status p,.auth-form .field,.auth-form .subtle { font-size: 13px; line-height: 1.8; }
+.auth-form .field input { min-height: 48px; font-size: 16px; }
+.auth-lock { margin-bottom: 18px; }
+.auth-form form { gap: 16px; }
+.auth-tabs { margin: 18px 0; }
+.auth-tabs button { font-size: 13px; min-height: 42px; }
+.tracking-option small,.account-hint,.device-settings>small { font-size: 12px; }
+.account-settings { margin-bottom: 24px; }
+.tracking-settings+.two-columns { grid-template-columns: 1fr; }
+
+@media(max-width:960px) and (min-width:761px) {
+  html[data-theme="dark"] .nav-item.active { padding-left: 0; }
+}
+@media(max-width:760px) {
+  .page-heading h1 { font-size: 28px; }
+  .page-heading .eyebrow { font-size: 10px; }
+  .page-help { font-size: 13px; }
+  .button,.hero-cta,.header-signin,.training-toolbar>.button,.session-actions>.button { font-size: 13px; }
+  .workout-hero { min-height: 215px; padding: 21px; }
+  .hero-body { padding: 20px 0 0; max-width: 100%; }
+  .hero-body h2 { font-size: 26px; max-width: none; }
+  .hero-meta,.hero-summary { font-size: 12px; }
+  .overview-top { grid-template-columns: 1fr; }
+  .weekly-card { padding: 20px; }
+  .weekly-number { font-size: 54px; margin: 0; }
+  .weekly-card h3 { font-size: 14px; }
+  .weekly-card p { font-size: 12px; }
+  .overview-actions { gap: 10px; }
+  .overview-actions .button { min-width: 0; flex: 1 1 135px; }
+  .metric-heading { font-size: 12px; }
+  .metric-bottom { font-size: 11px; flex-wrap: wrap; }
+  .metric-card { padding: 17px 14px; }
+  .field,.notes-label,.checkbox-field,.training-hint,.photo-intro { font-size: 12px; }
+  .field>input,.field>select,.input-unit input { font-size: 16px; }
+  .set-heading { font-size: 9px; letter-spacing: 0; }
+  .simple-sets .set-row { grid-template-columns: 28px minmax(51px,1fr) minmax(51px,1fr) 45px 21px; gap: 6px; }
+  .simple-sets.with-rpe .set-row { grid-template-columns: 22px minmax(39px,1fr) minmax(39px,1fr) minmax(35px,.6fr) 44px 21px; gap: 4px; }
+  .set-row input { font-size: 17px; min-height: 44px; padding: 8px 3px; }
+  .set-check { height: 44px; width: 44px; }
+  .set-check svg { width: 20px; height: 20px; }
+  .set-index { font-size: 13px; padding-left: 0; }
+  .exercise-name { font-size: 17px; }
+  .exercise-header p { font-size: 12px; }
+  .client-tabs button { padding: 9px 11px; font-size: 13px; }
+  .client-tabs { gap: 6px; }
+  .coach-intro h2 { font-size: 24px; }
+  .coach-demo,.coach-demo strong { font-size: 11px; }
+  .client-stats small { font-size: 11px; }
+  .client-records summary { font-size: 13px; }
+  .client-records summary small { font-size: 11px; }
+  .budget-stats small { font-size: 11px; }
+  .budget-settings,.budget-explanation { font-size: 12px; }
+  .budget-days { gap: 4px; }
+  .budget-days button>span { font-size: 11px; }
+  .budget-days button>small { font-size: 9px; }
+  .budget-days button>strong { font-size: 12px; letter-spacing: -.4px; }
+  .mobile-nav button { font-size: 10px; min-height: 48px; }
+  .day-tab { font-size: 9px; }
+  .day-tab strong { font-size: 16px; }
+  .auth-form { padding: 28px 22px; }
+  .header-signin { padding: 8px 12px; }
+  .demo-notice { padding: 10px 12px; font-size: 11px; }
+  .auto-save { font-size: 10px; }
+}

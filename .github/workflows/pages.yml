@@ -1,0 +1,46 @@
+name: Deploy app
+on:
+  push:
+    branches: [codex/initial-foundation]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: become-better-pages
+  cancel-in-progress: false
+jobs:
+  build:
+    if: vars.DEPLOY_GITHUB_PAGES == 'true' && vars.VITE_SUPABASE_URL != '' && vars.VITE_SUPABASE_PUBLISHABLE_KEY != ''
+    runs-on: ubuntu-latest
+    env:
+      VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+      VITE_BASE_PATH: /become-better-next/
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Check independent cloud configuration
+        run: |
+          node --input-type=module -e "const url=new URL(process.env.VITE_SUPABASE_URL);if(url.protocol!=='https:'||url.hostname.includes('csjhpmqagaltnaicgryp'))throw new Error('Use only the new independent Supabase project');if(!process.env.VITE_SUPABASE_PUBLISHABLE_KEY.trim())throw new Error('Missing new public key');"
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+  deploy:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy new app
+        id: deployment
+        uses: actions/deploy-pages@v4

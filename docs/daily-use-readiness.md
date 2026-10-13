@@ -6,6 +6,8 @@ The new app is independent of the live v98 app. The old repo, URL and database r
 
 Dark/light appearance, tracker switches, personal workouts and cardio, nutrition goals/budgets, recovery, progress phases/photos/comparison, local persistence and backups, reviewed legacy conversion, prepared trainer permissions/workout assignment/chat, and auth forms.
 
+Readability pass: separated dark cards and fields, readable unselected client rows/day numbers, larger labels and set completion buttons, concise page instructions, a single workout overview action, daily shortcuts, collapsed secondary macro details, and a one-column account dialog. The mobile overview was visually checked at 390 px without horizontal overflow.
+
 Production builds pre-cache only static app files. Service-worker caches use a content-derived version and their own namespace; old-app caches and backend responses are untouched. In-progress account changes use the existing owner-scoped offline queue. An expired sign-in still needs an online auth refresh.
 
 Legacy conversion reads only a user-selected JSON file. It does not log into, query, modify or copy credentials from production. It preserves personal names, completed/unfinished sets, recorded numeric zero, clock-time semantics and historical weekly targets. Embedded photos are stored before the atomic record replacement; if record persistence fails, previous local media is restored. Old storage paths/signed URLs never enter new photo records. Unsupported/corrupt input fails before import. Keep the original JSON and original image files until the result is checked.
@@ -21,3 +23,5 @@ Legacy conversion reads only a user-selected JSON file. It does not log into, qu
 7. Import an owner-reviewed legacy backup into the intended new account, compare counts and representative values, and re-upload any old cloud-only photo files. Keep using the old app until these checks pass.
 
 At this revision no hosted Supabase project or cross-device integration has been verified. Local unit/PostgreSQL tests and visual QA do not substitute for those checks.
+
+The private GitHub source repository exists. The current GitHub account rejected Pages for that private repository (HTTP 422). The owner must choose an eligible Pages setup or a separate HTTPS host; the prepared Pages workflow stays disabled until its explicit repository flag and new cloud variables are present.

@@ -23,7 +23,7 @@ npm run preview
 
 ## Implemented
 
-- Responsive monochrome dashboard, dark by default with an optional light appearance; desktop sidebar and mobile bottom navigation.
+- Responsive monochrome dashboard, dark by default with an optional light appearance; separated card surfaces, readable labels/fields, desktop sidebar and mobile bottom navigation. Daily actions have direct shortcuts; the workout overview has one primary action and nutrition puts the entry form before the weekly budget.
 - Account-scoped training/nutrition/recovery/progress switches. Disabled trackers disappear from navigation and dashboard metrics while their saved records remain intact.
 - Password sign-in, registration, email confirmation handling and password recovery/update forms. Real account actions require the separate Supabase project to be connected; the UI says so explicitly until then.
 - Route/dialog transitions, synchronization indicators, client-loading placeholders and reduced-motion support. Disabled buttons have a stable cursor; the invitation action opens sign-in when anonymous.
@@ -60,6 +60,8 @@ See [docs/coaching.md](docs/coaching.md) for trainer/client access and the invit
 `src/App.tsx` contains the initial product screens. `src/lib/model.ts` defines record merge rules; `repository.ts` persists isolated account stores; `sync.ts` connects to Supabase. `src/components/ProgressPhotos.tsx` handles photos. The SQL migration enforces per-user access, and writes go through an authenticated CAS function. `tests/responsive.html` is a development-only iframe fixture for mobile layout checks.
 
 Use `VITE_BASE_PATH=/become-better-next/` for a subpath deployment. A private repository does not automatically provide a public GitHub Pages website; choose an independent development host before enabling mobile access.
+
+The source repository is `https://github.com/pokornydavid/become-better-next`. The prepared Pages workflow is deliberately opt-in: enable Pages for this repository, then set repository variables `DEPLOY_GITHUB_PAGES=true`, `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` for the **new** project. It tests and builds before deploying, and rejects the old production project. If the GitHub plan does not allow Pages for this private repository, keep the source private and use a separate host, or have the owner explicitly approve making the source public. Do not change visibility automatically.
 
 ## Before a commercial release
 
