@@ -51,7 +51,9 @@ npm run preview
 5. Restart Vite. Log in with the same account on PC and mobile **in this new app**. Demo data does not automatically enter real accounts.
 6. Confirm record and photo round trips across two signed-in devices, offline recovery, deletion, sign-out and account switching before inviting testers. Test a trainer, two clients and a second trainer in the real project too; SQL tests do not replace hosted integration tests.
 
-No new remote Supabase database is connected yet. Connect the Supabase plugin/account so the isolated project and real auth/device flows can be configured and verified. Do not substitute the old production project.
+The independent project `pilfcwraxpsuqssfvvjm` is connected through public build variables. All three migrations were applied atomically in its Dashboard SQL editor on 2026-10-13; do not blindly rerun the initial migrations. Hosted checks confirmed all application tables have RLS, no anonymous read grants, private photo storage, and a real confirmed account with a successful sign-in and a saved record. The public REST API rejects anonymous record reads (401). Full PC/phone round-trip and hosted coaching/media checks still need completion.
+
+Email signup and confirmation remain enabled. Custom SMTP is not configured: Supabase's built-in mail service is limited to project-team email addresses, so general registrations and recovery for friends need a separate SMTP sender. Do not disable email verification to work around this; trainer invitations depend on the verified email identity.
 
 See [docs/coaching.md](docs/coaching.md) for trainer/client access and the invitation workflow. The prepared online chat refreshes every 10 seconds while this screen is visible. It has no push notifications or automatic invitation emails yet.
 
