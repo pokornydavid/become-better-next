@@ -28,10 +28,16 @@ The independent Supabase project `pilfcwraxpsuqssfvvjm` is connected. The three 
 
 GitHub Pages deployed successfully with the new cloud configuration: `https://pokornydavid.github.io/become-better-next/`. The live registration/sign-in forms are enabled and the deployed application bundle points to the new project. The Auth Site URL and redirect allowlist contain the current Pages address, the future `dpokornydev` address and the local development URL. The old production files still matched their unchanged release during prior verification.
 
-Pending: physical PC/phone round-trip confirmation, hosted photo/coaching integration, registration/recovery on arbitrary email addresses, and final migration of any desired old data. Custom SMTP remains off; default Supabase mail only supports project-team recipients and its small trial limit. Keep email confirmation enabled. Local unit/PostgreSQL tests and server configuration checks do not replace those remaining checks.
+Pending: physical PC/phone round-trip confirmation, hosted photo/coaching integration, registration/recovery on arbitrary email addresses, and final migration of any desired old data. Custom SMTP was still off on this date; see the 2026-10-14 update below. Keep email confirmation enabled. Local unit/PostgreSQL tests and server configuration checks do not replace those remaining checks.
 
 The GitHub source repository is public at the owner's request to use GitHub Pages like the old application. Pages and its opt-in deployment flag are enabled on the independent new repository. A transfer from `pokornydavid` to `dpokornydev` was requested and needs acceptance on the destination account. Update the canonical Auth Site URL, remote URL and user-facing links after an accepted transfer; GitHub Pages addresses do not automatically redirect. The separate Sites fallback is unpublished.
 
 ## Step bridge — 2026-10-14
 
 The additive health-connection migration was applied to the new project. Live checks rejected an invalid write key (400) and an anonymous connection-table read (401). Local PostgreSQL checks cover private metadata/hash protection, owner-only writes, preservation of PC calorie/notes fields, idempotent totals, revocation and deleted-day protection. The settings UI explicitly waits for the first real phone transfer; it does not claim a connection has received data when only a key exists. A Huawei → Apple Health → Shortcut → cloud transfer still needs setup and verification on the owner's iPhone.
+
+## Workout usability and email setup — 2026-10-14
+
+The workout title and exercise names have transparent backgrounds; the overview's workout label no longer has an outlined pill. Up/down controls preserve exercise/set identities and work in completed workouts. The live Pages UI was checked, mobile controls are 44 px with no horizontal overflow at a 375 px content width, and all 47 tests plus the production build passed.
+
+Brevo custom SMTP is enabled and saved in the independent Supabase project. The owner verified the Brevo account by phone, generated a replacement SMTP key and entered it directly in Supabase. A fresh dashboard load confirmed the saved server/port, enabled SMTP and hidden stored password. The original key is deactivated; SMTP IP blocking was disabled with the owner's explicit approval because its authorized-IP list was empty. The owner deferred sending a test recovery email, so actual delivery and registration/recovery for arbitrary addresses remain unverified. No private SMTP key belongs in the repository or frontend.

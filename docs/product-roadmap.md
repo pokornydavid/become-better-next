@@ -13,7 +13,7 @@ Personal exercise naming is the default workflow, with optional RPE and library/
 - Connect a new Supabase project and deploy a separate HTTPS preview.
 - Verify two-device synchronization against that real project, including photos and auth expiration.
 - Complete onboarding for goals, units, experience level and schedule.
-- Expand training planning: saved user templates, exercise reordering, warm-up/drop sets, cardio and timed exercises.
+- Expand training planning: saved user templates, warm-up/drop sets, cardio and timed exercises. Exercise reordering is available through up/down controls.
 - Add folder date editing, optimized cloud thumbnails, full media backups, undo, reliable deletion/purge and account-data export/removal.
 - Finish hosted coaching verification, editing/removing assigned plans, chat notifications/history paging, invitation delivery/cancellation and full collaboration exports.
 - Expand workout completion validation, history editing and accessible larger-text settings.

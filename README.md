@@ -55,7 +55,7 @@ npm run preview
 
 The independent project `pilfcwraxpsuqssfvvjm` is connected through public build variables. The initial three migrations were applied atomically in its Dashboard SQL editor on 2026-10-13; the additive step-connection migration was applied on 2026-10-14. Do not blindly rerun them. Hosted checks confirmed RLS, no anonymous table read grants, private photo storage, and a real confirmed account with a successful sign-in and a saved record. Anonymous record/connection reads fail (401); an invalid step key fails (400). Full PC/phone round-trip and hosted coaching/media/Shortcut checks still need completion.
 
-Email signup and confirmation remain enabled. Custom SMTP is not configured: Supabase's built-in mail service is limited to project-team email addresses, so general registrations and recovery for friends need a separate SMTP sender. Do not disable email verification to work around this; trainer invitations depend on the verified email identity.
+Email signup and confirmation remain enabled. Brevo custom SMTP was configured on the independent Supabase project on 2026-10-14 and verified after a fresh dashboard load. The owner completed phone verification and entered the private SMTP key directly in Supabase. The replaced key is deactivated. Actual registration/recovery email delivery still needs a real test; the owner deferred sending a test email. Keep email verification enabled because trainer invitations depend on verified identity.
 
 See [docs/coaching.md](docs/coaching.md) for trainer/client access and the invitation workflow. The prepared online chat refreshes every 10 seconds while this screen is visible. It has no push notifications or automatic invitation emails yet.
 
