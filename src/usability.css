@@ -29,7 +29,7 @@ html[data-theme="dark"] .client-row.selected { background: #393939; border-left:
 html[data-theme="dark"] .client-row:hover { background: #343434; }
 html[data-theme="dark"] :is(.editor-tools summary,.range-field>span,.photo-caption>span,.photo-remove,.chart-empty,.template-index,.name-suggestions small,.training-hint,.input-unit>span,.calorie-foot,.phase-facts,.phase-type,.phase-status,.album-import-note,.compare-dialog .dialog-head p,.device-settings>small,.account-sync small,.profile-coach-link p,.tracking-settings .section-head p) { color: var(--muted); }
 html[data-theme="dark"] .compare-stage>div.editing { border-color: #fafafa; }
-html[data-theme="dark"] :is(input:not([type="checkbox"]):not([type="range"]),select,textarea,.password-field,.input-unit,.search-field) {
+html[data-theme="dark"] :is(input:not([type="checkbox"]):not([type="range"]):not(.exercise-name):not(.session-title),select,textarea,.password-field,.input-unit,.search-field) {
   background: var(--field);
   border-color: #818181;
   color: var(--ink);
@@ -37,7 +37,9 @@ html[data-theme="dark"] :is(input:not([type="checkbox"]):not([type="range"]),sel
 html[data-theme="dark"] :is(input,textarea)::placeholder { color: #c1c1c1; }
 html[data-theme="dark"] :is(.input-unit input,.password-field input) { border: 0; background: transparent; }
 html[data-theme="dark"] :is(.exercise-name,.session-title) { background: transparent; border-color: transparent; }
-html[data-theme="dark"] .exercise-name:hover { background: var(--raised); border-color: #818181; }
+html[data-theme="dark"] .session-head input.session-title,
+html[data-theme="dark"] .exercise-header input.exercise-name { background: transparent; border-color: transparent; }
+html[data-theme="dark"] :is(.exercise-name,.session-title):is(:hover,:focus) { background: transparent; border-color: transparent; }
 html[data-theme="dark"] .button.secondary { background: #363636; border-color: #8b8b8b; color: #fafafa; }
 html[data-theme="dark"] .nav-item.active { background: #373737; border-left: 3px solid #fff; padding-left: 13px; }
 html[data-theme="dark"] :is(.text-button,.icon-button,.add-set,.add-exercise,.day-tab,.mobile-nav button) { color: #dedede; }
@@ -84,7 +86,15 @@ html[data-theme="dark"] .day-tab:hover:not(.selected) { background: #3b3b3b; }
 .demo-tag { font-size: 10px; }
 .overview-top { grid-template-columns: minmax(0,1fr) 265px; }
 .workout-hero { min-height: 235px; padding: 25px; display: flex; flex-direction: column; }
-.hero-top .pill { font-size: 12px; background: transparent; padding: 0; letter-spacing: 1px; }
+.hero-top .pill { font-size: 12px; background: transparent; border: 0; padding: 0; letter-spacing: 1px; color: #d5d5d5; }
+.workout-hero:before { display: none; }
+.session-title { font-family: 'Manrope Variable',sans-serif; font-size: 34px; font-weight: 800; letter-spacing: -1px; border-radius: 0; }
+.exercise-header input.exercise-name { border-radius: 0; }
+.exercise-name:focus-visible,.session-title:focus-visible { outline: 0; box-shadow: 0 2px var(--muted); }
+.exercise-actions { display: flex; align-items: center; gap: 12px; flex: 0 0 auto !important; }
+.exercise-reorder { display: flex; gap: 2px; }
+.exercise-reorder .icon-button { width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 6px; }
+.exercise-reorder .icon-button:disabled { opacity: .4; cursor: default; background: transparent; color: var(--muted); }
 .hero-body { max-width: 100%; padding: 22px 0 0; }
 .hero-body h2 { font-family: 'Manrope Variable',sans-serif; font-size: 32px; font-weight: 800; letter-spacing: -1px; line-height: 1.25; max-width: none; text-transform: none; }
 .hero-meta { font-size: 13px; color: #ddd; margin-top: 15px; flex-wrap: wrap; }
@@ -133,6 +143,25 @@ html[data-theme="dark"] .day-tab:hover:not(.selected) { background: #3b3b3b; }
 .auth-tabs button { font-size: 13px; min-height: 42px; }
 .tracking-option small,.account-hint,.device-settings>small { font-size: 12px; }
 .account-settings { margin-bottom: 24px; }
+.health-settings { margin-bottom: 24px; }
+.health-intro,.health-guide,.health-setup p { font-size: 13px; color: var(--muted); line-height: 1.8; }
+.health-intro { margin-bottom: 18px; max-width: 740px; }
+.health-guide { margin-top: 22px; }
+.health-guide summary { cursor: pointer; color: var(--ink); font-weight: 700; padding: 10px 0; }
+.health-guide ol { padding-left: 22px; }
+.health-guide li { padding: 7px 0 7px 5px; }
+.health-guide strong { color: var(--ink); }
+.health-status { display: flex; align-items: center; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.health-status>div { flex: 1; }
+.health-status strong { font-size: 14px; }
+.health-status small { display: block; font-size: 12px; color: var(--muted); margin-top: 6px; }
+.health-consent { margin: 18px 0; }
+.health-setup { margin-top: 18px; }
+.health-setup h4 { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.health-copy { margin-top: 14px; }
+.health-copy>div { display: flex; align-items: center; gap: 8px; }
+.health-copy input { width: 100%; min-width: 0; padding: 12px; font-size: 12px; border: 1px solid var(--line); border-radius: 5px; }
+.health-copy button { flex: 0 0 44px; width: 44px; height: 44px; }
 .tracking-settings+.two-columns { grid-template-columns: 1fr; }
 
 @media(max-width:960px) and (min-width:761px) {
@@ -167,6 +196,10 @@ html[data-theme="dark"] .day-tab:hover:not(.selected) { background: #3b3b3b; }
   .set-check svg { width: 20px; height: 20px; }
   .set-index { font-size: 13px; padding-left: 0; }
   .exercise-name { font-size: 17px; }
+  .session-title { font-size: 28px; }
+  .exercise-header { display: grid; grid-template-columns: 24px minmax(0,1fr); align-items: start; }
+  .exercise-actions { grid-column: 2; justify-self: end; gap: 14px; }
+  .exercise-reorder .icon-button { width: 44px; height: 44px; }
   .exercise-header p { font-size: 12px; }
   .client-tabs button { padding: 9px 11px; font-size: 13px; }
   .client-tabs { gap: 6px; }

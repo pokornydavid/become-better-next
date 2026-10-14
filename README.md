@@ -30,6 +30,8 @@ npm run preview
 - Day/week navigation, personal workouts, sets, weight, reps, completion and rest timer. RPE is optional and hidden initially.
 - Write an exercise name directly in the workout, rename it in place, reuse past names and track maxima for personal names. Templates and the exercise library are optional.
 - Copy a workout to next week.
+- Move exercises up/down with arrows, including completed workouts. Reordering preserves exercise/set identities, renumbers the list and saves locally in one operation before cloud sync.
+- Optional daily step totals from an iPhone Shortcut: Huawei Health can share steps with Apple Health, then a user-configured Shortcut sends a total to a dedicated write-only endpoint. Keys are owner-created, hashed server-side, expire after a year and can be revoked immediately. Steps do not overwrite calories, sleep or notes; repeated totals are idempotent and deleted days are not revived. There is no direct native HealthKit reader or Huawei OAuth integration in this web app, and a real phone setup/transfer still needs verification. See [docs/iphone-steps.md](docs/iphone-steps.md).
 - Daily calories/macros/water, visible daily targets and an independent weekly calorie budget. The remaining budget is distributed across all unlogged days, including gaps in earlier days; recorded zero counts as a logged day.
 - Sleep times/score, stress, caffeine, night awakenings, reading, steps and morning habits.
 - Bodyweight/waist history, charts, personal maxima and training volume.
@@ -45,13 +47,13 @@ npm run preview
 ## Separate Supabase setup
 
 1. Create a **new** development project, preferably an EU region. Leave the current live project alone.
-2. Apply all three SQL migrations in filename order to the **new project**: `202610100001_initial.sql`, `202610110001_coaching_and_albums.sql`, then `202610110002_planning_and_phases.sql`. Local tests execute them on PostgreSQL via PGlite, including accepted invitations, chat isolation, photo/management consent, trainer goal CAS, atomic workout creation and revocation checks.
+2. For an empty **new project**, apply SQL migrations in filename order: `202610100001_initial.sql`, `202610110001_coaching_and_albums.sql`, `202610110002_planning_and_phases.sql`, then `202610140001_health_steps.sql`. Never rerun the initial migrations on a populated database. Local tests execute them on PostgreSQL via PGlite, including accepted invitations, chat isolation, photo/management consent, trainer goal CAS, atomic workout creation, step-key isolation and revocation checks.
 3. Copy `.env.example` to `.env`; fill the **new** project's URL and public publishable key. Never put service-role keys, management tokens or DB passwords in the frontend.
 4. Enable email/password signup; retain email confirmation, and set Auth Site URL/allowed redirects to the independent HTTPS app URL plus `http://127.0.0.1:5174` for local development. Configure email delivery before real registration/recovery testing.
 5. Restart Vite. Log in with the same account on PC and mobile **in this new app**. Demo data does not automatically enter real accounts.
 6. Confirm record and photo round trips across two signed-in devices, offline recovery, deletion, sign-out and account switching before inviting testers. Test a trainer, two clients and a second trainer in the real project too; SQL tests do not replace hosted integration tests.
 
-The independent project `pilfcwraxpsuqssfvvjm` is connected through public build variables. All three migrations were applied atomically in its Dashboard SQL editor on 2026-10-13; do not blindly rerun the initial migrations. Hosted checks confirmed all application tables have RLS, no anonymous read grants, private photo storage, and a real confirmed account with a successful sign-in and a saved record. The public REST API rejects anonymous record reads (401). Full PC/phone round-trip and hosted coaching/media checks still need completion.
+The independent project `pilfcwraxpsuqssfvvjm` is connected through public build variables. The initial three migrations were applied atomically in its Dashboard SQL editor on 2026-10-13; the additive step-connection migration was applied on 2026-10-14. Do not blindly rerun them. Hosted checks confirmed RLS, no anonymous table read grants, private photo storage, and a real confirmed account with a successful sign-in and a saved record. Anonymous record/connection reads fail (401); an invalid step key fails (400). Full PC/phone round-trip and hosted coaching/media/Shortcut checks still need completion.
 
 Email signup and confirmation remain enabled. Custom SMTP is not configured: Supabase's built-in mail service is limited to project-team email addresses, so general registrations and recovery for friends need a separate SMTP sender. Do not disable email verification to work around this; trainer invitations depend on the verified email identity.
 

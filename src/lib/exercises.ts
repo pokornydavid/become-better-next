@@ -3,6 +3,19 @@ import { num, recordsOf, text } from './model.ts';
 import type { Repository } from './repository.ts';
 
 export const exerciseNameKey = (name: string) => name.trim().replace(/\s+/g, ' ').toLocaleLowerCase('cs-CZ');
+export function workoutExercises(store: Store, workoutId?: string) {
+  return recordsOf(store, 'exercise').filter(e => e.payload.workoutId === workoutId)
+    .sort((a, b) => num(a.payload.order) - num(b.payload.order) || a.id.localeCompare(b.id));
+}
+export function moveExercise(repo: Repository, workoutId: string, exerciseId: string, direction: -1 | 1) {
+  const store = repo.getSnapshot().store, workout = store.records[workoutId];
+  if (!workout || workout.deleted || workout.kind !== 'workout') throw new Error('Trénink už není dostupný.');
+  const exercises = workoutExercises(store, workoutId), index = exercises.findIndex(e => e.id === exerciseId), target = index + direction;
+  if (index < 0 || target < 0 || target >= exercises.length) return;
+  [exercises[index], exercises[target]] = [exercises[target], exercises[index]];
+  // Save the entire local reorder once; IDs and their completed sets stay intact.
+  repo.updateBatch(exercises.flatMap((exercise, order) => exercise.payload.order === order ? [] : [{ id: exercise.id, kind: 'exercise' as const, payload: { order } }]));
+}
 export function addPersonalExercise(repo: Repository, workoutId: string, name: string, count: number, reps: number) {
   name = name.trim();
   if (!name || name.length > 120) throw new Error('Napiš název cviku, nejvýš 120 znaků.');

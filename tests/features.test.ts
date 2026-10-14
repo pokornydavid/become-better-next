@@ -2,9 +2,35 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Repository } from '../src/lib/repository.ts';
 import { emptyStore, recordsOf } from '../src/lib/model.ts';
-import { addPersonalExercise, personalBests } from '../src/lib/exercises.ts';
+import { addPersonalExercise, personalBests, moveExercise, workoutExercises } from '../src/lib/exercises.ts';
 import { clampTransform, imagePlacement, photoAlbums, photoTransform } from '../src/lib/photo-albums.ts';
 const memory = () => { const values = new Map<string,string>(); return { getItem:(key:string) => values.get(key) || null,setItem:(key:string,value:string) => { values.set(key,value); } }; };
+
+test('reordering retains exercises and completed sets, saves once and survives reopening',() => {
+  const storage=memory(),repo=new Repository(storage); repo.startEmpty();
+  const workout=repo.add('workout',{name:'LOWER',status:'completed'}),other=repo.add('workout',{name:'Jiný'});
+  const a=addPersonalExercise(repo,workout,'předkopy',2,7),b=addPersonalExercise(repo,workout,'legpress',1,10),c=addPersonalExercise(repo,workout,'lýtka',1,12);
+  addPersonalExercise(repo,other,'jiný cvik',1,8);
+  const set=recordsOf(repo.getSnapshot().store,'set').find(s=>s.payload.exerciseId===a)!;
+  repo.patch(set.id,'set',{weight:105,done:true});
+  const before=recordsOf(repo.getSnapshot().store,'set'),otherBefore=workoutExercises(repo.getSnapshot().store,other);
+  let changes=0; repo.subscribe(()=>changes++); moveExercise(repo,workout,a,1);
+  assert.equal(changes,1); assert.deepEqual(workoutExercises(repo.getSnapshot().store,workout).map(e=>e.id),[b,a,c]);
+  assert.deepEqual(recordsOf(repo.getSnapshot().store,'set'),before);
+  assert.deepEqual(workoutExercises(repo.getSnapshot().store,other),otherBefore);
+  assert.equal(repo.getSnapshot().store.records[workout].payload.status,'completed');
+  const reopened=new Repository(storage); assert.deepEqual(workoutExercises(reopened.getSnapshot().store,workout).map(e=>e.id),[b,a,c]);
+  const unchanged=repo.exportBackup(); moveExercise(repo,workout,b,-1); moveExercise(repo,workout,c,1);
+  assert.deepEqual(repo.exportBackup(),unchanged);
+});
+
+test('reordering with old duplicate positions is deterministic and quota failure preserves the old order',() => {
+  const storage=memory(),repo=new Repository(storage); repo.startEmpty(); const workout=repo.add('workout',{name:'A'});
+  repo.addBatch([{id:'b',kind:'exercise',payload:{workoutId:workout,name:'B',order:0}},{id:'a',kind:'exercise',payload:{workoutId:workout,name:'A',order:0}},{id:'gone',kind:'exercise',payload:{workoutId:workout,name:'Smazaný',order:0}}]);
+  repo.remove(['gone']); assert.deepEqual(workoutExercises(repo.getSnapshot().store,workout).map(e=>e.id),['a','b']);
+  const before=repo.exportBackup(); storage.setItem=()=>{throw new Error('quota');};
+  assert.throws(()=>moveExercise(repo,workout,'a',1),/quota/); assert.deepEqual(repo.exportBackup(),before);
+});
 test('personal exercise preserves the user name, creates selected sets atomically and rejects blank names',() => {
   const repo = new Repository(memory()); repo.startEmpty();
   const workout = repo.add('workout',{ name:'Můj trénink',date:'2026-10-11' });
