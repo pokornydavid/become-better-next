@@ -62,6 +62,11 @@ export function sleepHours(bedTime: string, wakeTime: string) {
   const minutes = (time: string) => Number(time.slice(0, 2)) * 60 + Number(time.slice(3));
   return ((minutes(wakeTime) - minutes(bedTime) + 1440) % 1440) / 60;
 }
+export function recordedSleepHours(daily: Record<string, Value>) {
+  const duration = daily.sleepDurationHours;
+  return typeof duration === 'number' && Number.isFinite(duration) && duration >= 0 && duration <= 24
+    ? duration : sleepHours(text(daily.bedTime), text(daily.wakeTime));
+}
 export function volume(store: Store, workoutId?: string) {
   const exercises = recordsOf(store, 'exercise').filter(e => !isCardio(e) && (!workoutId || e.payload.workoutId === workoutId));
   const ids = new Set(exercises.map(e => e.id));

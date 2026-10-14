@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { addDays, equivalent, mergeRecord, patchRecord, sleepHours, weekDates, validateStore } from '../src/lib/model.ts';
+import { addDays, equivalent, mergeRecord, patchRecord, sleepHours, recordedSleepHours, weekDates, validateStore } from '../src/lib/model.ts';
 import { Repository, STORAGE_PREFIX } from '../src/lib/repository.ts';
 const a = '2026-10-10T08:00:00.000Z', b = '2026-10-10T08:00:01.000Z';
 function memory() { const values = new Map<string, string>(); return { getItem: (k: string) => values.get(k) || null, setItem: (k: string, v: string) => { values.set(k, v); }, values }; }
@@ -67,6 +67,11 @@ test('date navigation respects local days across month and DST changes', () => {
   assert.equal(addDays('2026-10-31', 1), '2026-11-01'); assert.equal(weekDates('2026-10-11')[0], '2026-10-05'); assert.equal(addDays('2026-10-25', 1), '2026-10-26');
 });
 test('sleep crosses midnight and rejects missing times', () => { assert.equal(sleepHours('23:00', '06:45'), 7.75); assert.equal(sleepHours('', '06:45'), 0); });
+test('watch sleep duration uses actual sleep rather than the whole time in bed',()=>{
+  const daily={bedTime:'23:00',wakeTime:'07:00',sleepDurationHours:7.25};
+  assert.equal(recordedSleepHours(daily),7.25);assert.equal(recordedSleepHours({...daily,sleepDurationHours:0}),0);
+  assert.equal(recordedSleepHours({...daily,sleepDurationHours:null}),8);assert.equal(recordedSleepHours({...daily,sleepDurationHours:25}),8);
+});
 test('restoring the local demo resets modified training status', () => {
   const storage = memory(), r = new Repository(storage);
   const workout = Object.values(r.getSnapshot().store.records).find(row => row.kind === 'workout' && row.payload.status === 'planned')!;

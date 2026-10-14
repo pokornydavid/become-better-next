@@ -162,6 +162,15 @@ html[data-theme="dark"] .day-tab:hover:not(.selected) { background: #3b3b3b; }
 .health-copy>div { display: flex; align-items: center; gap: 8px; }
 .health-copy input { width: 100%; min-width: 0; padding: 12px; font-size: 12px; border: 1px solid var(--line); border-radius: 5px; }
 .health-copy button { flex: 0 0 44px; width: 44px; height: 44px; }
+.health-walkthrough { margin-top: 20px; padding: 20px; border: 1px solid var(--line); border-radius: 8px; }
+.health-walkthrough h4 { font-size: 17px; margin: 14px 0; }
+.health-walkthrough p,.health-walkthrough ol { font-size: 14px; line-height: 1.8; color: var(--muted); }
+.health-walkthrough ol { padding-left: 20px; }
+.health-walkthrough li { margin: 10px 0; padding-left: 4px; }
+.health-walkthrough strong { color: var(--ink); }
+.health-guide-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+.health-walkthrough .health-consent { line-height: 1.6; align-items: flex-start; }
+@media (max-width: 700px) { .health-walkthrough { padding: 16px; } .health-status { flex-wrap: wrap; } }
 .tracking-settings+.two-columns { grid-template-columns: 1fr; }
 
 @media(max-width:960px) and (min-width:761px) {

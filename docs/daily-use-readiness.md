@@ -15,7 +15,7 @@ Legacy conversion reads only a user-selected JSON file. It does not log into, qu
 ## Required before switching from the old app
 
 1. Connect the owner's Supabase account and create/select a new independent project. Verify its project reference differs from `csjhpmqagaltnaicgryp` before every mutation.
-2. Apply the three prepared migrations in order. Keep per-user RLS and private photo storage enabled.
+2. Apply the prepared migrations in filename order. Keep per-user RLS and private photo storage enabled.
 3. Enable email/password registration with confirmation and email delivery. Configure the independent HTTPS app URL and allowed development redirects. Put only the new URL and public publishable/anon key in the frontend; no management/service-role secrets.
 4. Deploy to a separate HTTPS address. A loopback preview is only accessible on its PC and is not the mobile deployment.
 5. Verify real registration/confirmation/sign-in/recovery/sign-out; make matching updates on two signed-in devices, including photos, deletion, account changes, offline edits and expired-session recovery.
@@ -41,3 +41,9 @@ The additive health-connection migration was applied to the new project. Live ch
 The workout title and exercise names have transparent backgrounds; the overview's workout label no longer has an outlined pill. Up/down controls preserve exercise/set identities and work in completed workouts. The live Pages UI was checked, mobile controls are 44 px with no horizontal overflow at a 375 px content width, and all 47 tests plus the production build passed.
 
 Brevo custom SMTP is enabled and saved in the independent Supabase project. The owner verified the Brevo account by phone, generated a replacement SMTP key and entered it directly in Supabase. A fresh dashboard load confirmed the saved server/port, enabled SMTP and hidden stored password. The original key is deactivated; SMTP IP blocking was disabled with the owner's explicit approval because its authorized-IP list was empty. The owner deferred sending a test recovery email, so actual delivery and registration/recovery for arbitrary addresses remain unverified. No private SMTP key belongs in the repository or frontend.
+
+## Sleep bridge and guided setup — 2026-10-14
+
+The sleep migration was applied in a transaction to the independent project. Existing step keys do not gain sleep access; new connections require the owner's separate sleep choice. PostgreSQL tests verify permission scopes, owner isolation, idempotence, revocation and preservation of steps/notes/calories/bedtime. The recovery screen accepts actual watch duration instead of treating the whole time in bed as sleep. All 48 tests and the production build passed.
+
+The owner confirmed Huawei Steps/Sleep write categories are available and that last-night sleep appears in Apple Health with a similar duration. This confirms availability in Health, not upload into Become Better. Shortcut read permission initially failed; the owner had also picked Log Health Sample instead of Find Health Samples for sleep. Phone setup remains in progress with one-action guidance. Source selection, correct aggregation and the first real transfer still need verification on the owner's device.
