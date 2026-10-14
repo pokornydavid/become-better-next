@@ -40,11 +40,11 @@ export function HealthConnection({snapshot,signIn,notify}:{snapshot:Snapshot;sig
     <details className="health-guide"><summary>Jak propojení jednou nastavit</summary><ol>
       <li>V Apple Zdraví otevři <strong>Sdílení → Aplikace a služby → Huawei Zdraví</strong> a povol kroky. V <strong>Procházet → Aktivita → Kroky → Zdroje dat a přístup</strong> ověř, že jsou data z Huawei dostupná. Názvy se mohou podle verze lišit.</li>
       <li>V aplikaci <strong>Zkratky</strong> vytvoř Zkratku „Kroky do Become Better“. Přidej <strong>Najít vzorky zdravotních dat / Find Health Samples</strong>: typ Kroky, datum dnes, jeden zdroj — Huawei Zdraví, případně iPhone. Nepřičítej telefon a hodinky dohromady; překrývající se vzorky by se započítaly dvakrát.</li>
-      <li>Získej hodnoty vzorků a spočítej jejich <strong>součet</strong>. Je to celkový počet za den, nikoli přírůstek. Datum naformátuj jako <strong>yyyy-MM-dd</strong>.</li>
+      <li>Přidej podmínku: pokud je <strong>počet nalezených vzorků 0, zastav Zkratku</strong>. Jinak získej hodnoty vzorků a spočítej jejich <strong>součet</strong>. Je to celkový počet za den, nikoli přírůstek. Datum naformátuj jako <strong>yyyy-MM-dd</strong>.</li>
       <li>Přidej <strong>Získat obsah URL / Get Contents of URL</strong>. Použij URL výše, metodu <strong>POST</strong>, hlavičku <strong>apikey</strong> s hodnotou výše a <strong>Content-Type: application/json</strong>.</li>
       <li>Tělo JSON má čtyři položky: <strong>connection_key</strong> = tvůj klíč, <strong>day</strong> = naformátované datum, <strong>step_count</strong> = součet jako číslo, <strong>source</strong> = Apple Zdraví. Pokud nejsou vzorky dostupné, požadavek neposílej.</li>
       <li>Spusť Zkratku ručně a povol čtení kroků a přístup na Supabase. V této kartě se po skutečném přenosu ukáže počet kroků. Porovnej ho s vybraným zdrojem v Apple Zdraví.</li>
-      <li>Ve Zkratkách přidej automatizaci <strong>Denní čas</strong>, například 23:55, a zvol <strong>Spustit okamžitě / bez dotazu</strong>. Odesílá se počet k okamžiku spuštění; potřebuješ internet a dostupná zdravotní data.</li>
-    </ol><p>Web si z Apple Zdraví data sám číst neumí. Přenos spouští tvůj iPhone. Propojení kdykoli odpojíš tlačítkem výše; ručně uložené kalorie, spánek a poznámky zůstávají zachované.</p></details>
+      <li>Ve Zkratkách přidej automatizaci <strong>Aplikace → Huawei Zdraví → Je zavřena</strong> a zvol <strong>Spustit okamžitě / bez dotazu</strong>. Po synchronizaci hodinek a opuštění Huawei Zdraví se odešle dnešní počet kroků. Potřebuješ internet a odemčený telefon. Automatizaci v pevný čas můžeš přidat také, ale při zamčeném telefonu nemusí mít přístup ke zdravotním datům.</li>
+    </ol><p>Web si z Apple Zdraví data sám číst neumí. Přenos spouští tvůj iPhone a odesílá počet k okamžiku spuštění. Propojení kdykoli odpojíš tlačítkem výše; ručně uložené kalorie, spánek a poznámky zůstávají zachované.</p></details>
   </section>;
 }
