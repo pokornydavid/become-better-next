@@ -234,3 +234,6 @@ html[data-theme="dark"] .day-tab:hover:not(.selected) { background: #3b3b3b; }
 
 /* A rest day is an explicit daily choice, separate from completed workouts. */
 .hero-top{flex-wrap:wrap;gap:14px}.rest-day-toggle{min-height:44px;cursor:pointer}.rest-day-toggle input{width:20px;height:20px}.rest-day-toggle:has(input:disabled){opacity:.55;cursor:default}.rest-day-toolbar{display:flex;justify-content:flex-end;margin-bottom:12px}.day-indicator.is-rest{background:transparent!important;width:14px;height:14px;color:currentColor}
+
+.recent-workout{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border,#555)}.recent-workout .recent-row{flex:1;min-width:0;border-bottom:0}.copy-recent{display:flex;align-items:center;gap:7px;background:transparent;color:inherit;min-height:44px;padding:8px;border-radius:5px;font-size:12px;flex-shrink:0}.copy-recent:hover{background:color-mix(in srgb,currentColor 10%,transparent)}@media(max-width:600px){.recent-workout{gap:4px}.copy-recent{flex-direction:column;gap:3px;font-size:10px}.recent-workout .recent-row{gap:9px}.recent-row strong{overflow-wrap:anywhere}}
+.session-actions{flex-wrap:wrap;max-width:100%}
