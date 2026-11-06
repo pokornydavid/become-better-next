@@ -13,7 +13,7 @@ function setup() {
 }
 test('copying preserves completed source, custom order and loads while creating a fresh plan on an occupied rest day', () => {
   const {repo, storage} = setup();
-  const source = repo.add('workout', {name: 'Moje nohy', date: '2026-10-13', status: 'completed', duration: 173, startedAt: 123, notes: 'Poznámka'});
+  const source = repo.add('workout', {name: 'Moje nohy', date: '2026-10-13', status: 'completed', duration: 173, startedAt: 123, durationSeconds: 10380, finishedAt: 10380123, notes: 'Poznámka'});
   const first = addPersonalExercise(repo, source, 'předkopy', 2, 7), second = addPersonalExercise(repo, source, 'lýtka', 1, 12);
   repo.patch(first, 'exercise', {order: 1}); repo.patch(second, 'exercise', {order: 0});
   const set = recordsOf(repo.getSnapshot().store, 'set').find(s => s.payload.exerciseId === first)!;
@@ -26,7 +26,7 @@ test('copying preserves completed source, custom order and loads while creating 
   assert.equal(writes, 1);
   assert.deepEqual(store.records[source], before[source]); assert.deepEqual(store.records[existing], before[existing]);
   assert.deepEqual(store.records[set.id], before[set.id]);
-  assert.deepEqual(store.records[id].payload, {...before[source].payload, date: '2026-11-01', status: 'planned', duration: 0, startedAt: null});
+  assert.deepEqual(store.records[id].payload, {...before[source].payload, date: '2026-11-01', status: 'planned', duration: 0, startedAt: null, durationSeconds: null, finishedAt: null});
   const exercises = workoutExercises(store, id);
   assert.deepEqual(exercises.map(e => e.payload.name), ['lýtka', 'předkopy']);
   assert.ok(exercises.every(e => !before[e.id]));

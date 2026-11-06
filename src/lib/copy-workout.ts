@@ -9,7 +9,7 @@ export function copyWorkoutToDate(repo: Repository, sourceId: string, date: stri
   if (!source || source.deleted || source.kind !== 'workout') throw new Error('Původní trénink už není dostupný.');
   const id = crypto.randomUUID();
   const drafts: {id: string; kind: Kind; payload: Record<string, Value>}[] = [
-    {id, kind: 'workout', payload: {...source.payload, date, status: 'planned', duration: 0, startedAt: null}},
+    {id, kind: 'workout', payload: {...source.payload, date, status: 'planned', duration: 0, startedAt: null, durationSeconds: null, finishedAt: null}},
   ];
   const sets = recordsOf(store, 'set');
   for (const exercise of workoutExercises(store, sourceId)) {

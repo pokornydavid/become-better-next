@@ -237,3 +237,5 @@ html[data-theme="dark"] .day-tab:hover:not(.selected) { background: #3b3b3b; }
 
 .recent-workout{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border,#555)}.recent-workout .recent-row{flex:1;min-width:0;border-bottom:0}.copy-recent{display:flex;align-items:center;gap:7px;background:transparent;color:inherit;min-height:44px;padding:8px;border-radius:5px;font-size:12px;flex-shrink:0}.copy-recent:hover{background:color-mix(in srgb,currentColor 10%,transparent)}@media(max-width:600px){.recent-workout{gap:4px}.copy-recent{flex-direction:column;gap:3px;font-size:10px}.recent-workout .recent-row{gap:9px}.recent-row strong{overflow-wrap:anywhere}}
 .session-actions{flex-wrap:wrap;max-width:100%}
+
+.training-settings{margin-bottom:24px}.training-settings>.field{max-width:320px}.training-settings>p{font-size:13px;line-height:1.7;margin:14px 0 0;color:inherit;opacity:.85}.workout-duration{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0 12px;font-size:14px;color:inherit}.workout-duration strong{font-variant-numeric:tabular-nums;font-weight:700;letter-spacing:.5px}.workout-duration.running>svg{opacity:.8}
