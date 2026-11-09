@@ -3,18 +3,23 @@ import { BookOpen, Plus, Search } from 'lucide-react';
 import { repository } from '../lib/sync';
 import { addPersonalExercise, exerciseNameKey } from '../lib/exercises';
 import { recordsOf, text } from '../lib/model';
+import { inferredMuscle } from '../lib/muscles';
+import { MuscleSelect } from './MuscleSelect';
 type Item = { id: string; name: string; muscle: string; equipment: string; cue: string };
 export function ExercisePicker({ workoutId, library, choose, close, notify }: { workoutId?: string; library: Item[]; choose: (item: Item) => void; close: () => void; notify: (message: string) => void }) {
   const [name, setName] = useState(''), [browse, setBrowse] = useState(false), [query, setQuery] = useState('');
+  const [muscle,setMuscle] = useState('');
+  const chooseName = (value:string) => {setName(value);const known=inferredMuscle(repository.getSnapshot().store,value);if(known)setMuscle(known);};
   const previous = [...new Set(recordsOf(repository.getSnapshot().store, 'exercise').map(e => text(e.payload.name)))].filter(n => n && exerciseNameKey(n).includes(exerciseNameKey(name))).slice(0, 5);
   return <div className="simple-picker"><p className="dialog-description">Pojmenuj si cvik tak, jak ho znáš ty.</p>
     <form className="modal-form" onSubmit={e => {
       e.preventDefault(); if (!workoutId) return;
-      try { const data = new FormData(e.currentTarget); addPersonalExercise(repository, workoutId, name, Number(data.get('sets')), Number(data.get('reps'))); close(); notify(`${name.trim()} přidán do tréninku.`); }
+      try { const data = new FormData(e.currentTarget); addPersonalExercise(repository, workoutId, name, Number(data.get('sets')), Number(data.get('reps')), muscle); close(); notify(`${name.trim()} přidán do tréninku.`); }
       catch (error) { notify(error instanceof Error ? error.message : 'Cvik se nepodařilo uložit.'); }
     }}>
-      <label className="field"><span>Můj název cviku</span><input autoFocus name="name" required maxLength={120} placeholder="Např. tlaky na šikmé lavici" value={name} onChange={e => setName(e.target.value)}/></label>
-      {name.trim() && previous.length > 0 && <div className="name-suggestions"><small>Už používáš</small>{previous.map(n => <button key={n} type="button" onClick={() => setName(n)}>{n}</button>)}</div>}
+      <label className="field"><span>Můj název cviku</span><input autoFocus name="name" required maxLength={120} placeholder="Např. tlaky na šikmé lavici" value={name} onChange={e => chooseName(e.target.value)}/></label>
+      {name.trim() && previous.length > 0 && <div className="name-suggestions"><small>Už používáš</small>{previous.map(n => <button key={n} type="button" onClick={() => chooseName(n)}>{n}</button>)}</div>}
+      <label className="field"><span>Hlavní partie (pro týdenní série)</span><MuscleSelect value={muscle} onChange={setMuscle} label="Hlavní partie nového cviku"/></label>
       <div className="form-grid two"><label className="field"><span>Série</span><input type="number" name="sets" defaultValue={3} min={1} max={20} required/></label><label className="field"><span>Opakování</span><input type="number" name="reps" defaultValue={10} min={1} max={1000} required/></label></div>
       <button className="button full-width" type="submit"><Plus size={17}/> Přidat můj cvik</button>
     </form>

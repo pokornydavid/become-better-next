@@ -9,6 +9,7 @@ import './features.css';
 import './planning.css';
 import './theme.css';
 import './usability.css';
+import './training-planner.css';
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { error: string }> {
   state = { error: '' };

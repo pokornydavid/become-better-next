@@ -1,8 +1,9 @@
 import type { Store } from './model.ts';
 import { num, recordsOf, text } from './model.ts';
 import type { Repository } from './repository.ts';
+import { exerciseNameKey, inferredMuscle } from './muscles.ts';
+export { exerciseNameKey } from './muscles.ts';
 
-export const exerciseNameKey = (name: string) => name.trim().replace(/\s+/g, ' ').toLocaleLowerCase('cs-CZ');
 export function workoutExercises(store: Store, workoutId?: string) {
   return recordsOf(store, 'exercise').filter(e => e.payload.workoutId === workoutId)
     .sort((a, b) => num(a.payload.order) - num(b.payload.order) || a.id.localeCompare(b.id));
@@ -16,7 +17,7 @@ export function moveExercise(repo: Repository, workoutId: string, exerciseId: st
   // Save the entire local reorder once; IDs and their completed sets stay intact.
   repo.updateBatch(exercises.flatMap((exercise, order) => exercise.payload.order === order ? [] : [{ id: exercise.id, kind: 'exercise' as const, payload: { order } }]));
 }
-export function addPersonalExercise(repo: Repository, workoutId: string, name: string, count: number, reps: number) {
+export function addPersonalExercise(repo: Repository, workoutId: string, name: string, count: number, reps: number, muscle?: string) {
   name = name.trim();
   if (!name || name.length > 120) throw new Error('Napiš název cviku, nejvýš 120 znaků.');
   if (!Number.isInteger(count) || count < 1 || count > 20 || !Number.isInteger(reps) || reps < 1 || reps > 1000) throw new Error('Zkontroluj počet sérií a opakování.');
@@ -25,7 +26,7 @@ export function addPersonalExercise(repo: Repository, workoutId: string, name: s
   const id = crypto.randomUUID();
   const order = Math.max(-1, ...recordsOf(store, 'exercise').filter(e => e.payload.workoutId === workoutId).map(e => num(e.payload.order))) + 1;
   repo.addBatch([
-    { id, kind: 'exercise', payload: { workoutId, name, muscle: '', catalogId: '', order } },
+    { id, kind: 'exercise', payload: { workoutId, name, muscle: muscle ?? inferredMuscle(store, name), catalogId: '', order } },
     ...Array.from({ length: count }, (_, i) => ({ kind: 'set' as const, payload: { exerciseId: id, weight: null, reps, done: false, rpe: null, order: i } })),
   ]);
   return id;
