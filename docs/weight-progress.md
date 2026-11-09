@@ -1,6 +1,6 @@
 # Body-weight progress
 
-`WeightProgress` replaces the unlabeled weight sparklines in Overview and Progress → Měření a výkony. The full view displays latest recorded weight/date, signed change since the first observation, change since the previous observation, and the difference from the configured goal. These summary cards use the complete history; the graph has a separately labeled change for its selected 14/30/90-day or all-time period.
+`WeightProgress` replaces the unlabeled weight sparklines in Overview and Progress → Měření. The full view displays latest recorded weight/date, signed change since the first observation, change since the previous observation, and the difference from the configured goal. These summary cards use the complete history; the graph has a separately labeled change for its selected 7/14/30/90-day or all-time period. Each day range includes today and the preceding days up to that length.
 
 Every plotted point has its weight and date. Selecting it by pointer or keyboard shows that observation and its change from the preceding plotted point. Points represent observations, not interpolated daily weights. Long histories scroll horizontally, and the chart starts at the latest observation. Overview shows the last seven observations with the same all-time summary.
 

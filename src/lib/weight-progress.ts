@@ -17,6 +17,6 @@ export function weightSummary(entries:WeightEntry[]) {
 }
 export function weightsInRange(entries:WeightEntry[],range:string,today=dateKey()) {
   if(range==='all')return entries;
-  const length=Number(range);if(![14,30,90].includes(length))return entries;
+  const length=Number(range);if(![7,14,30,90].includes(length))return entries;
   const from=addDays(today,1-length);return entries.filter(entry=>entry.date>=from&&entry.date<=today);
 }
