@@ -10,6 +10,7 @@ import './planning.css';
 import './theme.css';
 import './usability.css';
 import './training-planner.css';
+import './weight-progress.css';
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { error: string }> {
   state = { error: '' };
