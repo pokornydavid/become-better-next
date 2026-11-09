@@ -3,7 +3,7 @@ import { BookOpen, Plus, Search } from 'lucide-react';
 import { repository } from '../lib/sync';
 import { addPersonalExercise, exerciseNameKey } from '../lib/exercises';
 import { recordsOf, text } from '../lib/model';
-import { inferredMuscle } from '../lib/muscles';
+import { inferredMuscle, muscleLabel } from '../lib/muscles';
 import { MuscleSelect } from './MuscleSelect';
 type Item = { id: string; name: string; muscle: string; equipment: string; cue: string };
 export function ExercisePicker({ workoutId, library, choose, close, notify }: { workoutId?: string; library: Item[]; choose: (item: Item) => void; close: () => void; notify: (message: string) => void }) {
@@ -19,11 +19,11 @@ export function ExercisePicker({ workoutId, library, choose, close, notify }: { 
     }}>
       <label className="field"><span>Můj název cviku</span><input autoFocus name="name" required maxLength={120} placeholder="Např. tlaky na šikmé lavici" value={name} onChange={e => chooseName(e.target.value)}/></label>
       {name.trim() && previous.length > 0 && <div className="name-suggestions"><small>Už používáš</small>{previous.map(n => <button key={n} type="button" onClick={() => chooseName(n)}>{n}</button>)}</div>}
-      <label className="field"><span>Hlavní partie (pro týdenní série)</span><MuscleSelect value={muscle} onChange={setMuscle} label="Hlavní partie nového cviku"/></label>
+      <label className="field"><span>Hlavní partie (pro týdenní série)</span><MuscleSelect store={repository.getSnapshot().store} value={muscle} onChange={setMuscle} label="Hlavní partie nového cviku"/></label>
       <div className="form-grid two"><label className="field"><span>Série</span><input type="number" name="sets" defaultValue={3} min={1} max={20} required/></label><label className="field"><span>Opakování</span><input type="number" name="reps" defaultValue={10} min={1} max={1000} required/></label></div>
       <button className="button full-width" type="submit"><Plus size={17}/> Přidat můj cvik</button>
     </form>
     <button className="text-button picker-alternative" onClick={() => setBrowse(!browse)} aria-expanded={browse}><BookOpen size={16}/>{browse ? 'Skrýt knihovnu' : 'Nebo vybrat z knihovny'}</button>
-    {browse && <><label className="search-field"><Search size={17}/><input aria-label="Vyhledat cvik v knihovně" placeholder="Hledat v knihovně" value={query} onChange={e => setQuery(e.target.value)}/></label><div className="exercise-picker">{library.filter(item => exerciseNameKey(item.name + ' ' + item.muscle).includes(exerciseNameKey(query))).map(item => <button key={item.id} onClick={() => { choose(item); close(); }}><span><strong>{item.name}</strong><small>{[item.muscle, item.equipment].filter(Boolean).join(' · ')}</small></span><Plus size={18}/></button>)}</div></>}
+    {browse && <><label className="search-field"><Search size={17}/><input aria-label="Vyhledat cvik v knihovně" placeholder="Hledat v knihovně" value={query} onChange={e => setQuery(e.target.value)}/></label><div className="exercise-picker">{library.filter(item => exerciseNameKey(item.name + ' ' + muscleLabel(item.muscle,repository.getSnapshot().store)).includes(exerciseNameKey(query))).map(item => <button key={item.id} onClick={() => { choose(item); close(); }}><span><strong>{item.name}</strong><small>{[muscleLabel(item.muscle,repository.getSnapshot().store), item.equipment].filter(Boolean).join(' · ')}</small></span><Plus size={18}/></button>)}</div></>}
   </div>;
 }

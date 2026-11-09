@@ -29,9 +29,9 @@ test('weekly series use Monday-Sunday, live ancestors and checked sets exactly o
   repo.patch('goals','goals',{weeklySets_chest:8,weeklySets_biceps:12});
   const result=weeklySetTotals(repo.getSnapshot().store,'2026-11-11');
   assert.equal(result.groups.find(g=>g.id==='chest')!.done,4);assert.equal(result.groups.find(g=>g.id==='chest')!.target,8);
-  assert.equal(result.groups.find(g=>g.id==='quads')!.done,2);assert.equal(result.groups.find(g=>g.id==='legs')!.done,2);
-  assert.equal(result.groups.find(g=>g.id==='biceps')!.done,1);assert.equal(result.unassigned,2);
-  assert.deepEqual(unassignedExercises(repo.getSnapshot().store,'2026-11-11').map(e=>e.payload.name),['Bez partie']);
+  assert.equal(result.groups.find(g=>g.id==='quads')!.done,2);assert.equal(result.groups.some(g=>g.id==='legs'),false);
+  assert.equal(result.groups.find(g=>g.id==='biceps')!.done,1);assert.equal(result.unassigned,4);
+  assert.deepEqual(unassignedExercises(repo.getSnapshot().store,'2026-11-11').map(e=>e.payload.name),['Staré nohy','Bez partie']);
 });
 test('assigning the same personal name updates historical copies atomically; future exercises inherit it and copied unchecked sets do not add volume',()=>{
   const {repo,storage}=setup(),original=exercise(repo,'2026-11-09','  Moje   tlaky ','');

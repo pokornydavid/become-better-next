@@ -7,9 +7,15 @@ The `#planning` section shares the selected date and week with training. It is a
 
 ## Counting and classification
 
-Each checked strength set counts once for its exercise's primary muscle in its workout's Monday–Sunday calendar week. Active or manually logged sets count even before the workout is finished. Deleted sets, exercises, workouts, and cardio are excluded. Blank/unknown muscle labels are shown as unassigned, not guessed. Old `Nohy` labels remain a separate group rather than being assumed to mean quadriceps.
+Each checked strength set counts once for its exercise's primary muscle in its workout's Monday–Sunday calendar week. Active or manually logged sets count even before the workout is finished. Deleted sets, exercises, workouts, and cardio are excluded. Blank/unknown muscle labels are shown as unassigned, not guessed. Generic legacy `Záda`, `Nohy`, and `Hýždě` are no longer default target rows. They remain on historical records and can be explicitly reassigned. Default back groups are now lats and upper back.
 
 Selecting a muscle updates all non-deleted exercise records with the same normalized name. Names ignore case and repeated whitespace; different variants should use different names. Future personal exercises and copied workouts retain the classification. The picker and existing workout cards both expose the muscle selector.
+
+## Personal muscles and watchlist
+
+Users can add, rename and hide muscles in the planner. Custom muscle definitions use `customMuscle_<uuid>` goal fields and stable `custom:<uuid>` exercise values. Renaming preserves targets and historical links. Visibility (`muscleVisible_<id>`) and default label overrides (`muscleLabel_<id>`) are separate goal fields; hiding does not delete exercises or sets. Custom definitions are reused by workout, exercise-picker and library controls.
+
+Progress starts with no watched exercises. Add/remove actions set independent `watchExercise_<encoded-normalized-name>` flags. Only watched names appear in the main selector. All historical logs remain intact; the history link in a workout explicitly adds that exercise to the watchlist.
 
 ## Split and storage
 
@@ -19,6 +25,6 @@ Split dates use continuous calendar-day offsets from the start, including across
 
 ## Exercise progress
 
-Only checked sets are historical observations. The chart plots the highest recorded weight per workout, displaying the repetitions of that set. Duplicate occurrences of the same exercise name in one workout combine into one session. Missing weights/reps do not become zero-load observations. A recorded zero load is valid. Tables retain every dated session, checked-set count, and recorded load × reps volume. Period filters include today and exclude future entries.
+Only checked sets are historical observations. A simple comparison shows the previous and latest recorded load with both dates and repetitions. The chart has one selectable, zero-based column per workout, with its exact weight, date and repetitions printed on it. Detailed historical rows are collapsed by default. Duplicate occurrences of the same exercise name in one workout combine into one session. Missing weights/reps do not become zero-load observations. A recorded zero load is valid. Tables retain every dated session, checked-set count, and recorded load × reps volume. Period filters include today and exclude future entries.
 
 Verification: `npm test`, `npm run build`, and desktop/mobile UI flows for target persistence, split application, classification, checked-set totals, and copied-name history.

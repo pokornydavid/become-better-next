@@ -1,7 +1,7 @@
 import { addDays, dateKey, isCardio, num, recordsOf, text, weekDates } from './model.ts';
 import type { Kind, Store, Value } from './model.ts';
 import type { Repository } from './repository.ts';
-import { exerciseNameKey, muscleGroup, muscleGroups } from './muscles.ts';
+import { exerciseNameKey, muscleGroup, musclesForStore } from './muscles.ts';
 
 export type SplitDay = {name:string; rest:boolean};
 export function validDate(date: string) {
@@ -52,18 +52,18 @@ export function weeklySetTotals(store: Store, date: string) {
   for (const set of recordsOf(store,'set')) {
     const exercise = exercises.get(text(set.payload.exerciseId));
     if (!exercise || set.payload.done !== true) continue;
-    const group = muscleGroup(text(exercise.payload.muscle));
+    const group = muscleGroup(text(exercise.payload.muscle),store);
     if (group) totals.set(group.id, (totals.get(group.id) || 0) + 1); else unassigned++;
   }
   const goals = store.records.goals && !store.records.goals.deleted ? store.records.goals.payload : {};
-  return {unassigned, groups:muscleGroups.map(group => ({...group,done:totals.get(group.id)||0,target:Math.max(0,Math.min(200,Math.round(num(goals[`weeklySets_${group.id}`]))))}))};
+  return {unassigned, groups:musclesForStore(store).map(group => ({...group,done:totals.get(group.id)||0,target:Math.max(0,Math.min(200,Math.round(num(goals[`weeklySets_${group.id}`]))))}))};
 }
 export function unassignedExercises(store: Store, date: string) {
   const workouts = new Set(recordsOf(store,'workout').filter(w => weekDates(date).includes(text(w.payload.date))).map(w=>w.id));
   const seen = new Set<string>();
   return recordsOf(store,'exercise').filter(e => {
     const key = exerciseNameKey(text(e.payload.name));
-    if (!key || seen.has(key) || !workouts.has(text(e.payload.workoutId)) || isCardio(e) || muscleGroup(text(e.payload.muscle))) return false;
+    if (!key || seen.has(key) || !workouts.has(text(e.payload.workoutId)) || isCardio(e) || muscleGroup(text(e.payload.muscle),store)) return false;
     seen.add(key); return true;
   });
 }
@@ -93,4 +93,13 @@ export function historyExerciseNames(store: Store) {
 export function historyInRange(history: ExerciseSession[], range: string, today = dateKey()) {
   const start = range === 'all' ? '' : addDays(today, 1-Number(range));
   return history.filter(row=>row.date<=today && (!start || row.date>=start));
+}
+export function watchedExerciseNames(store:Store) {
+  const row=store.records.goals,goals=row&&!row.deleted?row.payload:{};
+  return historyExerciseNames(store).filter(([key])=>goals[`watchExercise_${encodeURIComponent(key)}`]===true);
+}
+export function watchExercise(repo:Repository,key:string,enabled:boolean) {
+  key=exerciseNameKey(key);
+  if(!key||key.length>120||(enabled&&!historyExerciseNames(repo.getSnapshot().store).some(([name])=>name===key)))throw new Error('Vyber cvik ze svých tréninků.');
+  repo.patch('goals','goals',{[`watchExercise_${encodeURIComponent(key)}`]:enabled});
 }
