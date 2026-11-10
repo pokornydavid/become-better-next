@@ -49,6 +49,18 @@ test('weekly planned sums use actual cycle occurrences and keep repeated same-na
   assert.equal(weeklySetTotals(repo.getSnapshot().store,'2026-11-09').groups.find(group=>group.id==='chest')!.planned,16);
 });
 
+test('training totals sum visible muscle allocations per workout without multiplying by weekly frequency',()=>{
+  const {repo}=setup();saveSplit(repo,'2026-11-09',[{name:'Push',rest:false},{name:'Upper',rest:false},{name:'Rest',rest:true}]);
+  const [push,upper]=readSplit(repo.getSnapshot().store).days;
+  saveSplitSetTarget(repo,'chest',push.id,6);saveSplitSetTarget(repo,'shoulders',push.id,3);saveSplitSetTarget(repo,'chest',upper.id,4);
+  const totals=weeklySetTotals(repo.getSnapshot().store,'2026-11-09');
+  assert.deepEqual(totals.splitColumns.map(day=>[day.name,day.plannedSets,day.count]),[['Push',9,3],['Upper',4,2]]);
+  assert.equal(totals.groups.find(group=>group.id==='chest')!.planned,26);
+  assert.equal(totals.groups.find(group=>group.id==='chest')!.done,0);
+  setMuscleVisible(repo,'shoulders',false);
+  assert.equal(weeklySetTotals(repo.getSnapshot().store,'2026-11-09').splitColumns[0].plannedSets,6);
+});
+
 test('allocation and order settings merge independently across devices without overwriting weekly targets',()=>{
   const {repo}=setup();saveSplit(repo,'2026-11-09',[{name:'Push',rest:false},{name:'Upper',rest:false}]);
   const days=readSplit(repo.getSnapshot().store).days,base=repo.getSnapshot().store.records.goals;

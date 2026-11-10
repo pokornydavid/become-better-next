@@ -23,6 +23,8 @@ Targets use independent `weeklySets_<muscle-id>` fields on the owner's existing 
 
 Each non-rest split day gets an editable column before the actual completed count and independent weekly target. `splitSets_<muscle-id>_<split-day-id>` stores sets per occurrence of that training day. The row's planned weekly total multiplies each allocation by that day's actual occurrences in the selected Monday–Sunday week. This supports cycles shorter or longer than seven days and weeks before the start. Header counts explain the calculation; duplicate names include their cycle-day number. Rest days are excluded. The row shows the planned total and any remaining/excess amount relative to the weekly target; completed sets remain based solely on checked workout logs. Allocations do not generate exercises or check off sets. Removed-day allocations remain stored but do not contribute to the current split; presets/new days start with fresh IDs.
 
+Above the table, **Celkem sérií na trénink** sums the visible muscle allocations in each split column. These totals represent one occurrence of that training day, without multiplying by its weekly frequency. Editing allocations updates the cards automatically; no additional settings are stored.
+
 Split dates use continuous calendar-day offsets from the start, including across DST and week boundaries. Saving a split does not create workouts. **Použít split na tento týden** explicitly creates empty planned workouts/rest flags in one local batch. Dates with live workouts are skipped, daily nutrition is preserved, and repeated application does not duplicate workouts. It does not allocate exercise sets based on ambiguous custom split names.
 
 ## Exercise progress

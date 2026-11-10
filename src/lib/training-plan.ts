@@ -85,10 +85,11 @@ export function weeklySetTotals(store: Store, date: string) {
   }
   const goals = store.records.goals && !store.records.goals.deleted ? store.records.goals.payload : {};
   const splitColumns=splitSetColumns(store,date);
-  return {unassigned,splitColumns,groups:musclesForStore(store).map(group => {
+  const groups=musclesForStore(store).map(group => {
     const allocation=splitColumns.map(day=>({...day,sets:splitSetValue(store,group.id,day.id)}));
     return {...group,done:totals.get(group.id)||0,target:Math.max(0,Math.min(200,Math.round(num(goals[`weeklySets_${group.id}`])))),allocation,planned:allocation.reduce((sum,day)=>sum+day.sets*day.count,0)};
-  })};
+  });
+  return {unassigned,groups,splitColumns:splitColumns.map(day=>({...day,plannedSets:groups.reduce((sum,group)=>sum+(group.allocation.find(allocation=>allocation.id===day.id)?.sets||0),0)}))};
 }
 export function unassignedExercises(store: Store, date: string) {
   const workouts = new Set(recordsOf(store,'workout').filter(w => weekDates(date).includes(text(w.payload.date))).map(w=>w.id));
