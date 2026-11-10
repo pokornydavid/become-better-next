@@ -24,7 +24,18 @@ export function musclesForStore(store?:Store, includeHidden=false):MuscleGroup[]
   for(const [field,value] of Object.entries(goals)) if(/^customMuscle_[a-zA-Z0-9-]+$/.test(field)&&typeof value==='string'&&value.trim()&&value.length<=40) {
     const id=field.slice('customMuscle_'.length);groups.push({id,value:`custom:${id}`,label:value.trim(),aliases:[]});
   }
-  return groups.filter(group=>includeHidden||goals[`muscleVisible_${group.id}`]!==false);
+  let order:string[]=[];
+  try {const saved=JSON.parse(text(goals.muscleOrder));if(Array.isArray(saved)&&saved.every(id=>typeof id==='string'))order=saved;} catch { /* Keep the existing order for older or invalid settings. */ }
+  const positions=new Map(order.map((id,index)=>[id,index]));
+  return groups.sort((a,b)=>(positions.get(a.id)??Infinity)-(positions.get(b.id)??Infinity)).filter(group=>includeHidden||goals[`muscleVisible_${group.id}`]!==false);
+}
+export function moveMuscle(repo:Repository,id:string,delta:-1|1) {
+  const store=repo.getSnapshot().store,all=musclesForStore(store,true),visible=musclesForStore(store),index=visible.findIndex(group=>group.id===id),target=visible[index+delta];
+  if(index<0)throw new Error('Partie už není dostupná.');
+  if(!target)return;
+  const order=all.map(group=>group.id),from=order.indexOf(id),to=order.indexOf(target.id);
+  [order[from],order[to]]=[order[to],order[from]];
+  repo.patch('goals','goals',{muscleOrder:JSON.stringify(order)});
 }
 export function muscleGroup(value: string, store?:Store, includeHidden=true) {
   const key = aliasKey(value);

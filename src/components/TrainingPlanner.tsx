@@ -3,8 +3,8 @@ import { ArrowDown, ArrowUp, CalendarDays, Check, Dumbbell, Moon, Plus, Trending
 import { dateKey, displayDate, recordsOf, text, weekDates } from '../lib/model';
 import type { Store } from '../lib/model';
 import { repository } from '../lib/sync';
-import { assignExerciseMuscle } from '../lib/muscles';
-import { applySplitWeek, readSplit, saveSplit, splitDayForDate, unassignedExercises, weeklySetTotals } from '../lib/training-plan';
+import { assignExerciseMuscle, moveMuscle } from '../lib/muscles';
+import { applySplitWeek, readSplit, saveSplit, saveSplitSetTarget, splitDayForDate, unassignedExercises, weeklySetTotals } from '../lib/training-plan';
 import type { SplitDay } from '../lib/training-plan';
 import { MuscleSelect } from './MuscleSelect';
 import { MuscleManager } from './MuscleManager';
@@ -26,6 +26,8 @@ export function TrainingPlanner({store,date,selectDate,openWorkout,selectedExerc
   const [days,setDays]=useState<SplitDay[]>(split.days.length?split.days:[{name:'Upper',rest:false},{name:'Lower',rest:false},{name:'Rest',rest:true}]);
   useEffect(()=>{if(!editing){setStart(split.start||dateKey());setDays(split.days);}},[splitSignature,editing]);
   const missing=unassignedExercises(store,date);
+  const hasAllocation=totals.splitColumns.length>0;
+  const volumeStyle=hasAllocation?{gridTemplateColumns:`minmax(var(--volume-muscle-min,210px),1fr) repeat(${totals.splitColumns.length},76px) 72px 92px`}:undefined;
   const attempt=(action:()=>void)=>{try{action();return true;}catch(error){notify(error instanceof Error?error.message:'Změnu se nepodařilo uložit.');return false;}};
   function preset(names:string[]) {setDays(names.map(name=>({name,rest:name==='Rest'})));}
   function moveDay(index:number,delta:number) {const next=[...days],target=index+delta;if(target<0||target>=next.length)return;[next[index],next[target]]=[next[target],next[index]];setDays(next);}
@@ -35,9 +37,13 @@ export function TrainingPlanner({store,date,selectDate,openWorkout,selectedExerc
       <section className="card form-card"><div className="section-head"><div><h3>Série za týden</h3><p className="planner-help">{displayDate(dates[0])} – {displayDate(dates[6])} · pondělí až neděle</p></div><Dumbbell size={20}/></div>
         <p className="planner-help">Nastav si vlastní cíle. Každá odškrtnutá série se počítá jednou k hlavní partii cviku, včetně právě běžícího tréninku. Kardio se nepočítá. Prázdný cíl znamená bez limitu; cíle platí každý týden.</p>
         <MuscleManager store={store} run={attempt}/>
-        <div className="volume-table" role="table" aria-label="Týdenní série podle partie"><div className="volume-row volume-heading" role="row"><span role="columnheader">Partie</span><span role="columnheader">Odcvičeno</span><span role="columnheader">Cíl / týden</span></div>
-          {totals.groups.map(group=><div className="volume-row" role="row" key={group.id}><div role="cell"><strong>{group.label}</strong><div className="volume-track" aria-hidden="true"><span style={{width:`${group.target?Math.min(100,group.done/group.target*100):0}%`}}/></div></div><div role="cell" className="volume-count">{group.done}{group.target>0&&group.done>=group.target&&<Check size={15} aria-label="Cíl splněn"/>}</div><div role="cell"><TargetInput value={group.target} label={`Týdenní cíl sérií: ${group.label}`} save={value=>attempt(()=>repository.patch('goals','goals',{[`weeklySets_${group.id}`]:value}))}/></div></div>)}
-        </div>
+        {hasAllocation?<p className="planner-help volume-instructions">Do sloupců splitu zapiš série na jeden trénink. Například Prsa: Push 6 + Upper 4 = cíl 10 týdně. Součet zohledňuje, kolikrát daný den splitu vychází v tomto týdnu. Na mobilu posuň tabulku do strany.</p>:<p className="planner-help">Šipkami u názvu změníš pořadí partií. Pro rozdělení sérií mezi tréninky nejdřív ulož split níže.</p>}
+        <div className="volume-scroll" role="region" aria-label="Tabulka sérií podle partie, posuň do strany pro další sloupce" tabIndex={0}><div className={`volume-table${hasAllocation?' has-allocation':''}`} role="table" aria-label="Týdenní série podle partie" style={hasAllocation?{minWidth:`calc(var(--volume-muscle-min,210px) + ${188+totals.splitColumns.length*88}px)`}:undefined}><div className="volume-row volume-heading" role="row" style={volumeStyle}><span role="columnheader">Partie / pořadí</span>{totals.splitColumns.map(day=><div role="columnheader" key={day.id} className="volume-split-heading"><strong>{day.label}</strong><small>{day.count}× tento týden</small></div>)}<span role="columnheader">Odcvičeno</span><span role="columnheader">Cíl / týden</span></div>
+          {totals.groups.map((group,index)=>{
+            const difference=group.target-group.planned;
+            return <div className="volume-row" role="row" key={group.id} style={volumeStyle}><div role="cell" className="volume-muscle"><div className="volume-muscle-info"><strong>{group.label}</strong>{hasAllocation&&<small className={`volume-allocation-status${group.target>0&&difference===0?' matched':''}`}>{group.target>0?difference===0?`Rozpis ${group.planned} / ${group.target} · sedí`:difference>0?`Rozpis ${group.planned} / ${group.target} · zbývá ${difference}`:`Rozpis ${group.planned} / ${group.target} · navíc ${-difference}`:`Rozpis: ${group.planned} sérií / týden`}</small>}<div className="volume-track" aria-hidden="true"><span style={{width:`${group.target?Math.min(100,group.done/group.target*100):0}%`}}/></div></div><div className="volume-order-actions"><button type="button" className="icon-button" disabled={!index} aria-label={`Posunout partii ${group.label} nahoru`} onClick={()=>attempt(()=>moveMuscle(repository,group.id,-1))}><ArrowUp size={15}/></button><button type="button" className="icon-button" disabled={index===totals.groups.length-1} aria-label={`Posunout partii ${group.label} dolů`} onClick={()=>attempt(()=>moveMuscle(repository,group.id,1))}><ArrowDown size={15}/></button></div></div>{group.allocation.map(day=><div role="cell" key={day.id}><TargetInput value={day.sets} label={`Série ${group.label}: ${day.label}`} save={value=>attempt(()=>saveSplitSetTarget(repository,group.id,day.id,value))}/></div>)}<div role="cell" className="volume-count">{group.done}{group.target>0&&group.done>=group.target&&<Check size={15} aria-label="Cíl splněn"/>}</div><div role="cell"><TargetInput value={group.target} label={`Týdenní cíl sérií: ${group.label}`} save={value=>attempt(()=>repository.patch('goals','goals',{[`weeklySets_${group.id}`]:value}))}/></div></div>;
+          })}
+        </div></div>
         {totals.unassigned>0&&<p className="planner-notice">{totals.unassigned} odcvičených sérií zatím nemá partii z tvého seznamu. Doplň ji níže nebo přímo u cviku v tréninku.</p>}
         {missing.length>0&&<details className="planner-assign"><summary>Přiřadit partie cvikům bez zařazení ({missing.length})</summary><p className="planner-help">Výběr se uloží ke všem stejně pojmenovaným cvikům, také v historii.</p>{missing.map(e=><label key={e.id} className="planner-assign-row"><strong>{text(e.payload.name)}</strong><MuscleSelect store={store} value={text(e.payload.muscle)} label={`Přiřadit partii: ${text(e.payload.name)}`} onChange={value=>attempt(()=>assignExerciseMuscle(repository,text(e.payload.name),value))}/></label>)}</details>}
       </section>

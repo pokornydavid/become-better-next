@@ -3,26 +3,54 @@ import type { Kind, Store, Value } from './model.ts';
 import type { Repository } from './repository.ts';
 import { exerciseNameKey, muscleGroup, musclesForStore } from './muscles.ts';
 
-export type SplitDay = {name:string; rest:boolean};
+export type SplitDay = {id?:string; name:string; rest:boolean};
+type SavedSplitDay = SplitDay & {id:string};
 export function validDate(date: string) {
   return /^\d{4}-\d{2}-\d{2}$/.test(date) && Number.isFinite(Date.parse(`${date}T12:00:00Z`)) && new Date(`${date}T12:00:00Z`).toISOString().slice(0,10) === date;
 }
-export function readSplit(store: Store): {start:string; days:SplitDay[]} {
+export function readSplit(store: Store): {start:string; days:SavedSplitDay[]} {
   const row = store.records.goals, payload = row && !row.deleted ? row.payload : {};
   try {
     const days: unknown = JSON.parse(text(payload.trainingSplit));
     if (!Array.isArray(days) || !days.length || days.length > 28 || days.some(d => !d || typeof d.name !== 'string' || !d.name.trim() || d.name.length > 60 || typeof d.rest !== 'boolean') || !validDate(text(payload.splitStart))) return {start:'',days:[]};
-    return {start:text(payload.splitStart), days:days as SplitDay[]};
+    const ids=new Set<string>();
+    const saved=(days as SplitDay[]).map((day,index)=>{
+      let id=typeof day.id==='string'&&/^[a-zA-Z0-9-]{1,80}$/.test(day.id)?day.id:`legacy-${index+1}`;
+      while(ids.has(id))id=`${id}-${index+1}`;
+      ids.add(id);return {id,name:day.name,rest:day.rest};
+    });
+    return {start:text(payload.splitStart), days:saved};
   } catch {return {start:'',days:[]};}
 }
 export function saveSplit(repo: Repository, start: string, days: SplitDay[]) {
   if (!validDate(start) || !days.length || days.length > 28 || days.some(d => !d.name.trim() || d.name.trim().length > 60)) throw new Error('Vyplň datum začátku a názvy všech dnů (nejvýš 28 dnů).');
-  repo.patch('goals', 'goals', {splitStart:start, trainingSplit:JSON.stringify(days.map(d => ({name:d.name.trim(),rest:d.rest})))});
+  const ids=new Set<string>();
+  const saved=days.map(day=>{
+    const id=day.id||crypto.randomUUID();
+    if(!/^[a-zA-Z0-9-]{1,80}$/.test(id)||ids.has(id))throw new Error('Každý den splitu musí být samostatný.');
+    ids.add(id);return {id,name:day.name.trim(),rest:day.rest};
+  });
+  repo.patch('goals', 'goals', {splitStart:start, trainingSplit:JSON.stringify(saved)});
 }
-export function splitDayForDate(split: ReturnType<typeof readSplit>, date: string): SplitDay | null {
+export function splitDayForDate(split: ReturnType<typeof readSplit>, date: string): SavedSplitDay | null {
   if (!split.days.length || !validDate(date) || date < split.start) return null;
   const offset = Math.round((Date.parse(`${date}T12:00:00Z`) - Date.parse(`${split.start}T12:00:00Z`)) / 86400000);
   return split.days[offset % split.days.length];
+}
+export function splitSetColumns(store:Store,date:string) {
+  const split=readSplit(store),counts=new Map<string,number>();
+  for(const day of weekDates(date)) {const step=splitDayForDate(split,day);if(step&&!step.rest)counts.set(step.id,(counts.get(step.id)||0)+1);}
+  return split.days.flatMap((day,index)=>day.rest?[]:[{...day,label:split.days.filter(other=>!other.rest&&exerciseNameKey(other.name)===exerciseNameKey(day.name)).length>1?`${day.name} · den ${index+1}`:day.name,count:counts.get(day.id)||0}]);
+}
+function splitSetValue(store:Store,muscleId:string,dayId:string) {
+  const row=store.records.goals,value=row&&!row.deleted?row.payload[`splitSets_${muscleId}_${dayId}`]:null;
+  return typeof value==='number'&&Number.isInteger(value)&&value>=0&&value<=200?value:0;
+}
+export function saveSplitSetTarget(repo:Repository,muscleId:string,dayId:string,value:number) {
+  const store=repo.getSnapshot().store;
+  if(!musclesForStore(store,true).some(group=>group.id===muscleId)||!readSplit(store).days.some(day=>day.id===dayId&&!day.rest))throw new Error('Partie nebo den splitu už není dostupný.');
+  if(!Number.isInteger(value)||value<0||value>200)throw new Error('Napiš celé číslo od 0 do 200 sérií.');
+  repo.patch('goals','goals',{[`splitSets_${muscleId}_${dayId}`]:value});
 }
 export function applySplitWeek(repo: Repository, date: string) {
   const store = repo.getSnapshot().store, split = readSplit(store);
@@ -56,7 +84,11 @@ export function weeklySetTotals(store: Store, date: string) {
     if (group) totals.set(group.id, (totals.get(group.id) || 0) + 1); else unassigned++;
   }
   const goals = store.records.goals && !store.records.goals.deleted ? store.records.goals.payload : {};
-  return {unassigned, groups:musclesForStore(store).map(group => ({...group,done:totals.get(group.id)||0,target:Math.max(0,Math.min(200,Math.round(num(goals[`weeklySets_${group.id}`]))))}))};
+  const splitColumns=splitSetColumns(store,date);
+  return {unassigned,splitColumns,groups:musclesForStore(store).map(group => {
+    const allocation=splitColumns.map(day=>({...day,sets:splitSetValue(store,group.id,day.id)}));
+    return {...group,done:totals.get(group.id)||0,target:Math.max(0,Math.min(200,Math.round(num(goals[`weeklySets_${group.id}`])))),allocation,planned:allocation.reduce((sum,day)=>sum+day.sets*day.count,0)};
+  })};
 }
 export function unassignedExercises(store: Store, date: string) {
   const workouts = new Set(recordsOf(store,'workout').filter(w => weekDates(date).includes(text(w.payload.date))).map(w=>w.id));
