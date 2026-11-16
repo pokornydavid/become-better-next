@@ -50,3 +50,8 @@ test('copying fails without a partial plan for invalid dates, deleted source or 
   const other = setup().repo; const deleted = other.add('workout', {name: 'Smazaný'}); other.remove([deleted]); before = other.exportBackup();
   assert.throws(() => copyWorkoutToDate(other, deleted, '2026-10-16'), /dostupný/); assert.deepEqual(other.exportBackup(), before);
 });
+
+test('copying an empty split placeholder explains how to choose the original without creating another empty workout',()=>{
+  const {repo}=setup(),source=repo.add('workout',{name:'Pull',date:'2026-11-16',status:'planned'}),before=repo.exportBackup();
+  assert.throws(()=>copyWorkoutToDate(repo,source,'2026-11-17'),/prázdný/);assert.deepEqual(repo.exportBackup(),before);
+});

@@ -7,12 +7,14 @@ export function copyWorkoutToDate(repo: Repository, sourceId: string, date: stri
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(Date.parse(`${date}T12:00:00Z`)) || new Date(`${date}T12:00:00Z`).toISOString().slice(0, 10) !== date) throw new Error('Vyber platné datum.');
   const store = repo.getSnapshot().store, source = store.records[sourceId];
   if (!source || source.deleted || source.kind !== 'workout') throw new Error('Původní trénink už není dostupný.');
+  const exercises=workoutExercises(store,sourceId);
+  if(!exercises.length)throw new Error('Tento trénink je prázdný. Vyber původní trénink s cviky, který chceš zkopírovat.');
   const id = crypto.randomUUID();
   const drafts: {id: string; kind: Kind; payload: Record<string, Value>}[] = [
     {id, kind: 'workout', payload: {...source.payload, date, status: 'planned', duration: 0, startedAt: null, durationSeconds: null, finishedAt: null}},
   ];
   const sets = recordsOf(store, 'set');
-  for (const exercise of workoutExercises(store, sourceId)) {
+  for (const exercise of exercises) {
     const exerciseId = crypto.randomUUID();
     drafts.push({id: exerciseId, kind: 'exercise', payload: {...exercise.payload, workoutId: id}});
     for (const set of sets.filter(s => s.payload.exerciseId === exercise.id)) {
