@@ -40,6 +40,10 @@ export class Repository {
     try {
       const parsed = JSON.parse(raw), store = validateStore(parsed);
       store.pending = Array.isArray(parsed.pending) ? parsed.pending.filter((id: unknown) => typeof id === 'string' && Boolean(store.records[id])) : [];
+      // Revision zero means the server has never acknowledged this record.
+      // Recover a damaged/missing queue in account storage without changing any
+      // payloads, timestamps or tombstones; demo records must stay local.
+      if (key.startsWith(`${STORAGE_PREFIX}user:`)) store.pending = [...new Set([...store.pending, ...Object.values(store.records).filter(row => row.revision === 0).map(row => row.id)])];
       return store;
     } catch { throw new Error('Uložená data se nepodařilo načíst. Nevymazávej data prohlížeče; nejdřív je zazálohuj.'); }
   }
@@ -55,7 +59,7 @@ export class Repository {
     // Write before changing the UI. A full browser storage must never masquerade
     // as a successful save.
     this.storage.setItem(this.key, JSON.stringify(store));
-    this.snapshot = { ...this.snapshot, store }; this.emit();
+    this.snapshot = { ...this.snapshot, store, status: this.snapshot.user && store.pending.length && this.snapshot.status === 'synced' ? 'syncing' : this.snapshot.status }; this.emit();
   }
   setStatus(status: SyncState, error = '', lastSync = this.snapshot.lastSync) { this.snapshot = { ...this.snapshot, status, error, lastSync }; this.emit(); }
   activate(user: Snapshot['user']) {

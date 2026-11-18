@@ -1,4 +1,7 @@
 /* Clear surfaces, readable labels and a short path to daily actions. */
+.exercise-note { display: grid; gap: 7px; margin-top: 14px; }
+.exercise-note>span { color: var(--muted); font-size: 12px; }
+.exercise-note input { width: 100%; min-width: 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 5px; background: var(--field); color: var(--ink); font: inherit; font-size: 16px; }
 html[data-theme="dark"] {
   --paper: #121212;
   --ink: #fafafa;

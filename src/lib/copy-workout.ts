@@ -16,7 +16,7 @@ export function copyWorkoutToDate(repo: Repository, sourceId: string, date: stri
   const sets = recordsOf(store, 'set');
   for (const exercise of exercises) {
     const exerciseId = crypto.randomUUID();
-    drafts.push({id: exerciseId, kind: 'exercise', payload: {...exercise.payload, workoutId: id}});
+    drafts.push({id: exerciseId, kind: 'exercise', payload: {...exercise.payload, workoutId: id, notes: ''}});
     for (const set of sets.filter(s => s.payload.exerciseId === exercise.id)) {
       drafts.push({id: crypto.randomUUID(), kind: 'set', payload: {...set.payload, exerciseId, done: false, rpe: null}});
     }

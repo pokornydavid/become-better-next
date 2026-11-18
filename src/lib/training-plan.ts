@@ -100,14 +100,14 @@ export function unassignedExercises(store: Store, date: string) {
     seen.add(key); return true;
   });
 }
-export type ExerciseSession = {workoutId:string;date:string;name:string;sets:number;weight:number|null;reps:number|null;volume:number};
+export type ExerciseSession = {workoutId:string;date:string;name:string;sets:number;weight:number|null;reps:number|null;volume:number;notes:string[]};
 export function exerciseHistory(store: Store, key: string): ExerciseSession[] {
   const workouts = new Map(recordsOf(store,'workout').map(w=>[w.id,w])), exercises = new Map(recordsOf(store,'exercise').filter(e=>!isCardio(e) && exerciseNameKey(text(e.payload.name)) === key && workouts.has(text(e.payload.workoutId))).map(e=>[e.id,e]));
   const history = new Map<string,ExerciseSession>();
   for (const set of recordsOf(store,'set')) {
     const exercise = exercises.get(text(set.payload.exerciseId)); if (!exercise || set.payload.done !== true) continue;
     const workout = workouts.get(text(exercise.payload.workoutId))!, date = text(workout.payload.date); if (!validDate(date)) continue;
-    const row = history.get(workout.id) || {workoutId:workout.id,date,name:text(workout.payload.name),sets:0,weight:null,reps:null,volume:0};
+    const row = history.get(workout.id) || {workoutId:workout.id,date,name:text(workout.payload.name),sets:0,weight:null,reps:null,volume:0,notes:[...new Set([...exercises.values()].filter(e=>e.payload.workoutId===workout.id).map(e=>text(e.payload.notes)).filter(note=>note.trim()))]};
     row.sets++;
     const weight=set.payload.weight, reps=set.payload.reps;
     if (typeof weight==='number' && Number.isFinite(weight) && weight>=0 && typeof reps==='number' && Number.isFinite(reps) && reps>0) {

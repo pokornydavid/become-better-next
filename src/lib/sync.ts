@@ -4,6 +4,7 @@ import type { DataRecord } from './model.ts';
 import { Repository } from './repository.ts';
 import { readPhoto } from './photos';
 import { createAuthSignal } from './auth';
+import { syncRecords } from './sync-cycle.ts';
 
 const url = import.meta.env.VITE_SUPABASE_URL || '';
 const publicKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
@@ -29,57 +30,36 @@ let timer = 0;
 function schedule() { clearTimeout(timer); timer = window.setTimeout(() => { void syncNow(); }, 750); }
 repository.onDirty = schedule;
 async function runSync() {
-  const userId = repository.getSnapshot().user?.id;
-  if (!supabase || !userId) return;
-  if (!navigator.onLine) { repository.setStatus('offline'); return; }
-  repository.setStatus('syncing');
-  try {
-    for (let offset = 0; ; offset += 500) {
-      const { data, error } = await supabase.from('user_records').select('id,kind,payload,field_stamps,deleted,revision').eq('user_id', userId).order('id').range(offset, offset + 499);
-      if (repository.getSnapshot().user?.id !== userId) return;
+  const client = supabase;
+  if (!client || !repository.getSnapshot().user) return;
+  const retry = await syncRecords(repository, {
+    async fetchPage(userId, offset, limit) {
+      const { data, error } = await client.from('user_records').select('id,kind,payload,field_stamps,deleted,revision').eq('user_id', userId).order('id').range(offset, offset + limit - 1);
       if (error) throw error;
-      repository.receive((data as CloudRow[]).map(fromRow), userId);
-      if (data.length < 500) break;
-    }
-    const ids = [...repository.getSnapshot().store.pending];
-    let failures = 0;
-    for (const id of ids) {
-      // CAS + merge + retry handles another phone updating a field while this
-      // device is uploading. New local edits stay queued until acknowledged.
-      for (let attempt = 0; attempt < 4; attempt++) {
-        if (repository.getSnapshot().user?.id !== userId) return;
-        let current = repository.getSnapshot().store.records[id];
-        if (!current || !repository.getSnapshot().store.pending.includes(id)) break;
-        if (current.kind === 'photo' && !current.deleted && !current.payload.storagePath) {
-          try {
-            const blob = await readPhoto(userId, current.id);
-            if (!blob) throw new Error('Fotka chybí v tomto zařízení.');
-            const extension = blob.type === 'image/png' ? 'png' : blob.type === 'image/webp' ? 'webp' : 'jpg';
-            const storagePath = `${userId}/${current.id}.${extension}`;
-            const { error } = await supabase.storage.from('progress-photos').upload(storagePath, blob, { contentType: blob.type, upsert: false });
-            if (repository.getSnapshot().user?.id !== userId) return;
-            if (error && !error.message.toLowerCase().includes('already exists')) throw error;
-            repository.patch(current.id, 'photo', { storagePath });
-            current = repository.getSnapshot().store.records[id];
-          } catch { failures++; break; }
-        }
-        const { data, error } = await supabase.rpc('commit_record', {
-          record_id: current.id, record_kind: current.kind, record_payload: current.payload,
-          record_stamps: current.stamps, record_deleted: current.deleted, expected_revision: current.revision,
-        });
-        if (repository.getSnapshot().user?.id !== userId) return;
-        if (error) { failures++; break; }
-        repository.receive([fromRow(data.row as CloudRow)], userId);
-        if (!repository.getSnapshot().store.pending.includes(id)) break;
-      }
-    }
-    if (repository.getSnapshot().user?.id !== userId) return;
-    if (failures) throw new Error('Některé změny se nepodařilo odeslat. Zůstávají uložené v zařízení.');
-    repository.setStatus(repository.getSnapshot().store.pending.length ? 'syncing' : 'synced', '', new Date().toISOString());
-    if (repository.getSnapshot().store.pending.length) schedule();
-  } catch (error) {
-    if (repository.getSnapshot().user?.id === userId) repository.setStatus('error', error instanceof Error ? error.message : 'Databáze není připravená nebo připojení selhalo.');
-  }
+      return (data as CloudRow[]).map(fromRow);
+    },
+    async commit(current) {
+      const { data, error } = await client.rpc('commit_record', {
+        record_id: current.id, record_kind: current.kind, record_payload: current.payload,
+        record_stamps: current.stamps, record_deleted: current.deleted, expected_revision: current.revision,
+      });
+      if (error) throw error;
+      return fromRow(data.row as CloudRow);
+    },
+    async prepare(current, userId) {
+      if (current.kind !== 'photo' || current.deleted || current.payload.storagePath) return;
+      const blob = await readPhoto(userId, current.id);
+      if (!blob) throw new Error('Fotka chybí v tomto zařízení.');
+      if (repository.getSnapshot().user?.id !== userId) return;
+      const extension = blob.type === 'image/png' ? 'png' : blob.type === 'image/webp' ? 'webp' : 'jpg';
+      const storagePath = userId + '/' + current.id + '.' + extension;
+      const { error } = await client.storage.from('progress-photos').upload(storagePath, blob, { contentType: blob.type, upsert: false });
+      if (repository.getSnapshot().user?.id !== userId) return;
+      if (error && !error.message.toLowerCase().includes('already exists')) throw error;
+      repository.patch(current.id, 'photo', { storagePath });
+    },
+  }, navigator.onLine);
+  if (retry) schedule();
 }
 export function syncNow() {
   if (!inFlight) inFlight = runSync().finally(() => { inFlight = null; });
@@ -103,4 +83,9 @@ if (supabase) {
 window.addEventListener('online', schedule);
 window.addEventListener('offline', () => { if (repository.getSnapshot().user) repository.setStatus('offline'); });
 window.addEventListener('focus', schedule);
+// Installed mobile apps often resume without a window focus event. Start a
+// transfer immediately on hide, too: the 750 ms timer may be frozen by the OS.
+document.addEventListener('visibilitychange', () => { void syncNow(); });
+window.addEventListener('pageshow', () => { void syncNow(); });
+window.addEventListener('pagehide', () => { void syncNow(); });
 window.addEventListener('storage', event => { if (event.key?.startsWith('become-better-next:v1:')) repository.reloadFromOtherTab(); });
